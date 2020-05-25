@@ -2,8 +2,8 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Layout from '@/layout'
 import db from '@/utils/localstorage'
-import request from '@/utils/request'
-import store from '@/store/index'
+// import request from '@/utils/request'
+// import store from '@/store/index'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 
@@ -96,17 +96,18 @@ router.beforeEach((to, from, next) => {
     const token = db.get('ACCESS_TOKEN')
     const user = db.get('USER')
     const userRouter = get('USER_ROUTER')
+    console.log(userRouter)
     if (token.length && user) {
       if (!asyncRouter) {
         if (!userRouter) {
-          request.get(`system/menu/${user.username}`).then((res) => {
-            const permissions = res.data.data.permissions
-            store.commit('account/setPermissions', permissions)
-            asyncRouter = res.data.data.routes
-            store.commit('account/setRoutes', asyncRouter)
-            save('USER_ROUTER', asyncRouter)
-            go(to, next)
-          })
+        //   request.get(`system/menu/${user.username}`).then((res) => {
+        //     const permissions = res.data.data.permissions
+        //     store.commit('account/setPermissions', permissions)
+        //     asyncRouter = res.data.data.routes
+        //     store.commit('account/setRoutes', asyncRouter)
+        //     save('USER_ROUTER', asyncRouter)
+        //     go(to, next)
+        //   })
         } else {
           asyncRouter = userRouter
           go(to, next)
@@ -134,9 +135,9 @@ function go(to, next) {
   next({ ...to, replace: true })
 }
 
-function save(name, data) {
-  localStorage.setItem(name, JSON.stringify(data))
-}
+// function save(name, data) {
+//   localStorage.setItem(name, JSON.stringify(data))
+// }
 
 function get(name) {
   return JSON.parse(localStorage.getItem(name))
