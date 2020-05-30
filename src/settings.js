@@ -1,5 +1,5 @@
 module.exports = {
-  title: 'CHINBOX Cloud',
+  title: 'AR502H Console',
   // 获取令牌时，请求头信息(Basic Base64.encode(client_id:client_secret))
   authorizationValue: 'Basic ZmViczoxMjM0NTY=',
   // 社交登录后台地址

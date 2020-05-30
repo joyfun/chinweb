@@ -1,7 +1,7 @@
 {
   "name": "chinbox-web",
   "version": "4.2.1",
-  "description": "ChinBox 控制器管理段",
+  "description": "AR502H 控制器管理端",
   "author": "joyfun",
   "license": "Apache 2.0",
   "scripts": {
@@ -46,6 +46,7 @@
     "echarts": "4.2.1",
     "element-ui": "2.13.0",
     "fuse.js": "3.4.4",
+    "jsencrypt": "^3.0.0-rc.1",
     "normalize.css": "7.0.0",
     "nprogress": "0.2.0",
     "path-to-regexp": "2.4.0",

@@ -14,7 +14,7 @@ export default {
     deleteCache: '清除缓存'
   },
   login: {
-    title: 'FEBS 系统登录',
+    title: 'AR502H 系统登录',
     logIn: '立即登录',
     username: '账号',
     password: '密码',
@@ -253,7 +253,7 @@ export default {
     sidebarLogo: '侧边栏 Logo'
   },
   system: {
-    title: 'FEBS 权限系统'
+    title: 'AR502H'
   },
   tips: {
     usernameShouldNotBeEmpty: '用户名不能为空',
@@ -319,7 +319,7 @@ export default {
     invalidURL: '不是有效的URL'
   },
   common: {
-    system: '分布式微服务权限系统',
+    system: '智能物联网网关',
     desc: {
       a: '基于Spring Boot 2.2.0 & Spring Cloud Hoxton.RELEASE',
       b: '使用Spring Cloud OAuth2统一认证',

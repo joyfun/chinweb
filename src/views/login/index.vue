@@ -1,9 +1,9 @@
 <template>
   <div class="login-container">
     <div class="login-info">
-      <div class="title">FEBS Cloud</div>
+      <div class="title">AR502H</div>
       <div class="sub-title">{{ $t('common.system') }}</div>
-      <div class="desc">1. {{ $t('common.desc.a') }}</div>
+      <!-- <div class="desc">1. {{ $t('common.desc.a') }}</div>
       <div class="desc">2. {{ $t('common.desc.b') }}</div>
       <div class="desc">3. {{ $t('common.desc.c') }}</div>
       <div class="desc">4. {{ $t('common.desc.d') }}</div>
@@ -11,7 +11,7 @@
       <div class="desc">6. {{ $t('common.desc.f') }}</div>
       <div class="desc">7. {{ $t('common.desc.g') }}</div>
       <div class="desc">8. {{ $t('common.desc.h') }}</div>
-      <div class="desc">9. {{ $t('common.desc.i') }}</div>
+      <div class="desc">9. {{ $t('common.desc.i') }}</div> -->
     </div>
     <el-form ref="loginForm" :model="loginForm" :rules="rules" class="login-form" autocomplete="off" label-position="left">
       <div class="title-container">
@@ -145,7 +145,7 @@
       </el-dropdown>
     </el-form>
     <span class="login-footer">
-      © 2020 <a target="_blank" href="https://mrbird.cc">MrBird</a> - FEBS
+      © 2020 <a target="_blank" href="https://mrbird.cc">AR502H</a> -
     </span>
   </div>
 </template>
@@ -341,7 +341,8 @@ export default {
       if (username_c && password_c && code_c) {
         this.loading = true
         const that = this
-        this.$login('auth/oauth/token', {
+        // auth/oauth/tokne
+        this.$login('auth/token', {
           ...that.loginForm,
           key: this.randomId
         }).then((r) => {
