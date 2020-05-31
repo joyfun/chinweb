@@ -3,6 +3,15 @@ export default {
     dashboard: '系统主页',
     profile: '个人中心'
   },
+  mqtt: {
+    name: '连接名称',
+    host: '连接地址',
+    port: '端口',
+    user: '用户名',
+    password: '密码',
+    clientId: 'ClientId'
+
+  },
   navbar: {
     setting: '系统设置',
     github: '项目地址',
@@ -73,6 +82,10 @@ export default {
     },
     client: {
       clientId: '客户端ID',
+      type: '类型',
+      host: '地址',
+      port: '端口',
+      site: '站号',
       clientSecret: '客户端秘钥',
       scope: '范围',
       authorizedGrantTypes: '认证模式',

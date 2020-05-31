@@ -66,7 +66,7 @@ export default {
       return this.$store.state.setting.sidebar
     },
     avatar() {
-      return require(`@/assets/avatar/${this.$store.state.account.user.avatar}`)
+      return require(`@/assets/avatar/20180414165754.jpg`)
     },
     username() {
       return this.$store.state.account.user.username

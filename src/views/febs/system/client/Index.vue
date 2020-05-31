@@ -1,23 +1,5 @@
 <template>
   <div class="app-container">
-    <div class="filter-container">
-      <el-input v-model="queryParams.clientId" :placeholder="$t('table.client.clientId')" class="filter-item search-item" />
-      <el-button class="filter-item" type="primary" plain @click="search">
-        {{ $t('table.search') }}
-      </el-button>
-      <el-button class="filter-item" type="warning" plain @click="reset">
-        {{ $t('table.reset') }}
-      </el-button>
-      <el-dropdown v-has-any-permission="['client:add','client:delete']" trigger="click" class="filter-item">
-        <el-button>
-          {{ $t('table.more') }}<i class="el-icon-arrow-down el-icon--right" />
-        </el-button>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item v-has-permission="['client:add']" @click.native="add">{{ $t('table.add') }}</el-dropdown-item>
-          <el-dropdown-item v-has-permission="['client:delete']" @click.native="batchDelete">{{ $t('table.delete') }}</el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
-    </div>
     <el-table
       ref="table"
       :key="tableKey"
@@ -30,57 +12,40 @@
       @selection-change="onSelectChange"
     >
       <el-table-column type="selection" align="center" width="40px" />
-      <el-table-column :label="$t('table.client.clientId')" prop="clientId" :show-overflow-tooltip="true" align="center">
+      <el-table-column :label="$t('table.client.clientId')" prop="deviceId" :show-overflow-tooltip="true" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.clientId }}</span>
+          <span>{{ scope.row.deviceId }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.client.clientSecret')" prop="clientSecret" :show-overflow-tooltip="true" align="center" min-width="100px">
-        <template>
-          <span>******</span>
-        </template>
-      </el-table-column>
-      <el-table-column :label="$t('table.client.scope')" prop="scope" :show-overflow-tooltip="true" align="center">
+      <el-table-column :label="$t('table.client.type')" prop="type" :show-overflow-tooltip="true" align="center" min-width="100px">
         <template slot-scope="scope">
-          <span>{{ scope.row.scope }}</span>
+          <el-tag size="medium">{{ scope.row.type }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.client.authorizedGrantTypes')" prop="authorizedGrantTypes" :show-overflow-tooltip="true" align="center" min-width="170px">
+      <el-table-column :label="$t('table.client.host')" prop="host" :show-overflow-tooltip="true" align="center" min-width="100px">
         <template slot-scope="scope">
-          <span>{{ scope.row.authorizedGrantTypes }}</span>
+          <span>{{ scope.row.host }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.client.accessTokenValidity')" prop="accessTokenValidity" :show-overflow-tooltip="true" align="center" min-width="160px">
+      <el-table-column :label="$t('table.client.port')" prop="port" :show-overflow-tooltip="true" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.accessTokenValidity }} s</span>
+          <span>{{ scope.row.port }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.client.refreshTokenValidity')" prop="refreshTokenValidity" :show-overflow-tooltip="true" align="center" min-width="160px">
+      <el-table-column :label="$t('table.client.site')" prop="slave" :show-overflow-tooltip="true" align="center" min-width="170px">
         <template slot-scope="scope">
-          <span>{{ (scope.row.refreshTokenValidity) ? (scope.row.refreshTokenValidity + 's') : '' }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column :label="$t('table.client.webServerRedirectUri')" prop="webServerRedirectUri" :show-overflow-tooltip="true" align="center" min-width="180px">
-        <template slot-scope="scope">
-          <span>{{ scope.row.webServerRedirectUri }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column :label="$t('table.client.autoapprove')" prop="autoapprove" :show-overflow-tooltip="true" align="center" min-width="140px">
-        <template slot-scope="{row}">
-          <el-tag v-if="row.autoapprove !== null" :type="row.autoapprove | approveFilter">
-            {{ transApprove(row.autoapprove) }}
-          </el-tag>
+          <span>{{ scope.row.slave }}</span>
         </template>
       </el-table-column>
       <el-table-column :label="$t('table.operation')" align="center" min-width="150px" class-name="small-padding fixed-width" fixed="right">
-        <template slot-scope="{row}">
+        <!-- <template slot-scope="{row}">
           <i v-hasPermission="['client:decrypt']" class="el-icon-unlock table-operation" style="color: #87d068;" @click="unlock(row)" />
           <i v-hasPermission="['client:update']" class="el-icon-setting table-operation" style="color: #2db7f5;" @click="edit(row)" />
           <i v-hasPermission="['client:delete']" class="el-icon-delete table-operation" style="color: #f50;" @click="singleDelete(row)" />
           <el-link v-has-no-permission="['client:decrypt','client:update','client:delete']" class="no-perm">
             {{ $t('tips.noPermission') }}
           </el-link>
-        </template>
+        </template> -->
       </el-table-column>
     </el-table>
     <pagination v-show="total>0" :total="total" :page.sync="pagination.num" :limit.sync="pagination.size" @pagination="search" />
@@ -119,7 +84,7 @@ export default {
       },
       tableKey: 0,
       loading: false,
-      list: null,
+      list: [],
       total: 0,
       queryParams: {},
       selection: [],
@@ -201,13 +166,13 @@ export default {
     },
     delete(clientIds) {
       this.loading = true
-      this.$delete(`auth/client`, { clientIds }).then(() => {
-        this.$message({
-          message: this.$t('tips.deleteSuccess'),
-          type: 'success'
-        })
-        this.search()
-      })
+    //   this.$delete(`auth/client`, { clientIds }).then(() => {
+    //     this.$message({
+    //       message: this.$t('tips.deleteSuccess'),
+    //       type: 'success'
+    //     })
+    //     this.search()
+    //   })
     },
     clearSelections() {
       this.$refs.table.clearSelection()
@@ -222,15 +187,11 @@ export default {
       this.search()
     },
     fetch(params = {}) {
-      params.pageSize = this.pagination.size
-      params.pageNum = this.pagination.num
-      this.loading = true
-      this.$get('auth/client', {
+      this.$get('api/devices', {
         ...params
       }).then((r) => {
-        const data = r.data.data
-        this.total = data.total
-        this.list = data.rows
+        this.list = r.data
+        console.log(this.list)
         this.loading = false
       })
     }

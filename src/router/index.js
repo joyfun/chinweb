@@ -131,6 +131,30 @@ router.beforeEach((to, from, next) => {
               'alwaysShow': false
             },
             {
+              'path': '/system/mqtt',
+              'name': 'MQTT设置',
+              'component': 'febs/system/mqtt/Edit',
+              'meta': {
+                'title': 'MQTT设置',
+                'icon': '',
+                'breadcrumb': true
+              },
+              'hidden': false,
+              'alwaysShow': false
+            },
+            {
+              'path': '/client',
+              'name': '客户端管理',
+              'component': 'febs/system/client/Index',
+              'meta': {
+                'title': '客户端管理',
+                'icon': '',
+                'breadcrumb': true
+              },
+              'hidden': false,
+              'alwaysShow': false
+            },
+            {
               'path': '/system/role',
               'name': '角色管理',
               'component': 'febs/system/role/Index',
@@ -160,18 +184,6 @@ router.beforeEach((to, from, next) => {
               'component': 'febs/system/dept/Index',
               'meta': {
                 'title': '部门管理',
-                'icon': '',
-                'breadcrumb': true
-              },
-              'hidden': false,
-              'alwaysShow': false
-            },
-            {
-              'path': '/client',
-              'name': '客户端管理',
-              'component': 'febs/system/client/Index',
-              'meta': {
-                'title': '客户端管理',
                 'icon': '',
                 'breadcrumb': true
               },
