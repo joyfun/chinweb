@@ -19,12 +19,9 @@
       <el-form-item :label="$t('mqtt.clientId')" prop="clientId">
         <el-input v-model="mqtt.clientID" />
       </el-form-item>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="warning" plain :loading="buttonLoading" @click="isVisible = false">
-          {{ $t('common.cancel') }}
-        </el-button>
+      <div>
         <el-button type="primary" plain :loading="buttonLoading" @click="submitForm">
-          {{ $t('common.confirm') }}
+          {{ $t('common.save') }}
         </el-button>
       </div>
     </el-form>

@@ -17,6 +17,11 @@
           <span>{{ scope.row.deviceId }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="名称" prop="name" :show-overflow-tooltip="true" align="center">
+        <template slot-scope="scope">
+          <span>{{ scope.row.name }}</span>
+        </template>
+      </el-table-column>
       <el-table-column :label="$t('table.client.type')" prop="type" :show-overflow-tooltip="true" align="center" min-width="100px">
         <template slot-scope="scope">
           <el-tag size="medium">{{ scope.row.type }}</el-tag>

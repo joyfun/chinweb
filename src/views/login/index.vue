@@ -223,27 +223,9 @@ export default {
     getCodeImage() {
       axios({
         method: 'GET',
-        url: `${this.codeUrl}?key=${this.randomId}`,
-        responseType: 'arraybuffer'
+        url: `/api/rnd?key=${this.randomId}`
       }).then(res => {
-        return 'data:image/png;base64,' + btoa(
-          new Uint8Array(res.data)
-            .reduce((data, byte) => data + String.fromCharCode(byte), '')
-        )
-      }).then((res) => {
-        this.imageCode = res
-      }).catch((e) => {
-        if (e.toString().indexOf('429') !== -1) {
-          this.$message({
-            message: this.$t('tips.tooManyRequest'),
-            type: 'error'
-          })
-        } else {
-          this.$message({
-            message: this.$t('tips.getCodeImageFailed'),
-            type: 'error'
-          })
-        }
+        console.log(res.data)
       })
     },
     handleTabClick(tab, event) {

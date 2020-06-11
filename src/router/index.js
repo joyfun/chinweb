@@ -153,42 +153,6 @@ router.beforeEach((to, from, next) => {
               },
               'hidden': false,
               'alwaysShow': false
-            },
-            {
-              'path': '/system/role',
-              'name': '角色管理',
-              'component': 'febs/system/role/Index',
-              'meta': {
-                'title': '角色管理',
-                'icon': '',
-                'breadcrumb': true
-              },
-              'hidden': false,
-              'alwaysShow': false
-            },
-            {
-              'path': '/system/menu',
-              'name': '菜单管理',
-              'component': 'febs/system/menu/Index',
-              'meta': {
-                'title': '菜单管理',
-                'icon': '',
-                'breadcrumb': true
-              },
-              'hidden': false,
-              'alwaysShow': false
-            },
-            {
-              'path': '/system/dept',
-              'name': '部门管理',
-              'component': 'febs/system/dept/Index',
-              'meta': {
-                'title': '部门管理',
-                'icon': '',
-                'breadcrumb': true
-              },
-              'hidden': false,
-              'alwaysShow': false
             }
           ]
         },

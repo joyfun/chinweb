@@ -348,6 +348,7 @@ export default {
     tips: '提示',
     clear: '清除',
     confirm: '确定',
+    save: '保存',
     cancel: '取消',
     add: '新增',
     edit: '修改',
