@@ -8,17 +8,18 @@
     :visible.sync="isVisible"
   >
     <el-form ref="form" :model="client" :rules="rules" label-position="right" label-width="165px">
-      <el-form-item :label="$t('table.client.clientId')" prop="clientId">
-        <el-input v-model="client.clientId" :readonly="type === 'add' ? false : 'readonly'" />
+      <el-form-item :label="$t('table.client.name')" prop="name">
+        <el-input v-model="client.name" :readonly="type === 'add' ? false : 'readonly'" />
       </el-form-item>
-      <el-form-item :label="$t('table.client.clientSecret')" prop="clientSecret">
-        <el-input v-model="client.clientSecret" :readonly="type === 'add' ? false : 'readonly'" />
+      <el-form-item :label="$t('table.client.clientId')" prop="deviceId">
+        <el-input v-model="client.deviceId" :readonly="type === 'add' ? false : 'readonly'" />
       </el-form-item>
-      <el-form-item :label="$t('table.client.scope')" prop="scope">
-        <el-input v-model="client.scope" />
+      <el-form-item :label="$t('table.client.host')" prop="host">
+        <el-input v-model="client.host" :readonly="type === 'add' ? false : 'readonly'" />
       </el-form-item>
-      <el-form-item :label="$t('table.client.authorizedGrantTypes')" prop="authorizedGrantTypes">
-        <el-select v-model="client.authorizedGrantTypes" multiple value="" placeholder="" style="width:100%">
+
+      <el-form-item :label="$t('table.client.type')" prop="type">
+        <el-select v-model="client.type" value="" placeholder="" style="width:100%" @change="fillPort">
           <el-option
             v-for="item in grantTypes"
             :key="item.type"
@@ -27,7 +28,10 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item :label="$t('table.client.webServerRedirectUri')" prop="webServerRedirectUri">
+      <el-form-item :label="$t('table.client.port')" prop="port">
+        <el-input v-model="client.port" />
+      </el-form-item>
+      <!-- <el-form-item :label="$t('table.client.webServerRedirectUri')" prop="webServerRedirectUri">
         <el-input v-model="client.webServerRedirectUri" />
       </el-form-item>
       <el-form-item :label="$t('table.client.accessTokenValidity')" prop="accessTokenValidity">
@@ -41,7 +45,7 @@
           <el-option label="true" value="1" />
           <el-option label="false" value="0" />
         </el-select>
-      </el-form-item>
+      </el-form-item> -->
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button type="warning" plain :loading="buttonLoading" @click="isVisible = false">
@@ -54,7 +58,8 @@
   </el-dialog>
 </template>
 <script>
-import { isIntegerGreaterThanZero, validURL } from '@/utils/my-validate'
+// validURL
+import { isIntegerGreaterThanZero } from '@/utils/my-validate'
 
 export default {
   name: 'ClientEdit',
@@ -79,71 +84,77 @@ export default {
       width: this.initWidth(),
       client: this.initClient(),
       rules: {
-        clientId: [
-          { required: true, message: this.$t('rules.require'), trigger: 'blur' },
-          { min: 3, max: 20, message: this.$t('rules.range3to20'), trigger: 'blur' },
-          { validator: (rule, value, callback) => {
-            if (this.type === 'add') {
-              this.$get(`auth/client/check/${value}`).then((r) => {
-                if (!r.data) {
-                  callback(this.$t('rules.clientIdExist'))
-                } else {
-                  callback()
-                }
-              })
-            } else {
-              callback()
-            }
-          }, trigger: 'blur' }
-        ],
-        scope: [
-          { max: 100, message: this.$t('rules.noMoreThan100'), trigger: 'blur' },
-          { required: true, message: this.$t('rules.require'), trigger: 'blur' }
-        ],
-        webServerRedirectUri: { validator: (rule, value, callback) => {
-          if (value !== '' && value != null && !validURL(value)) {
-            callback(new Error(this.$t('rules.invalidURL')))
-          } else {
-            callback()
-          }
-        }, trigger: 'blur' },
-        clientSecret: [
-          { required: true, message: this.$t('rules.require'), trigger: 'blur' },
-          { min: 6, max: 20, message: this.$t('rules.range6to20'), trigger: 'blur' }
-        ],
-        accessTokenValidity: [
+        // clientId: [
+        //   { required: true, message: this.$t('rules.require'), trigger: 'blur' },
+        //   { min: 3, max: 20, message: this.$t('rules.range3to20'), trigger: 'blur' },
+        //   { validator: (rule, value, callback) => {
+        //     if (this.type === 'add') {
+        //       this.$get(`auth/client/check/${value}`).then((r) => {
+        //         if (!r.data) {
+        //           callback(this.$t('rules.clientIdExist'))
+        //         } else {
+        //           callback()
+        //         }
+        //       })
+        //     } else {
+        //       callback()
+        //     }
+        //   }, trigger: 'blur' }
+        // ],
+
+        port: [
           { required: true, message: this.$t('rules.require'), trigger: 'blur' },
           { validator: (rule, value, callback) => {
             if (!isIntegerGreaterThanZero(value)) {
               callback(new Error(this.$t('rules.invalidInteger')))
-            } else if (value.toString().length > 11) {
-              callback(new Error(this.$t('rules.noMoreThan11')))
+            } else if (value > 65535) {
+              callback(new Error(this.$t('rules.invalidatePort')))
             } else {
               callback()
             }
           }, trigger: 'blur' }
-        ],
-        refreshTokenValidity: [
-          { validator: (rule, value, callback) => {
-            if (value === null || value === '') {
-              callback()
-            } else if (!isIntegerGreaterThanZero(value)) {
-              callback(new Error(this.$t('rules.invalidInteger')))
-            } else if (value.toString().length > 11) {
-              callback(new Error(this.$t('rules.noMoreThan11')))
-            } else {
-              callback()
-            }
-          }, trigger: 'blur' }
-        ],
-        authorizedGrantTypes: { required: true, message: this.$t('rules.require'), trigger: 'blur' }
+        ]
+        // webServerRedirectUri: { validator: (rule, value, callback) => {
+        //   if (value !== '' && value != null && !validURL(value)) {
+        //     callback(new Error(this.$t('rules.invalidURL')))
+        //   } else {
+        //     callback()
+        //   }
+        // }, trigger: 'blur' },
+        // clientSecret: [
+        //   { required: true, message: this.$t('rules.require'), trigger: 'blur' },
+        //   { min: 6, max: 20, message: this.$t('rules.range6to20'), trigger: 'blur' }
+        // ],
+        // accessTokenValidity: [
+        //   { required: true, message: this.$t('rules.require'), trigger: 'blur' },
+        //   { validator: (rule, value, callback) => {
+        //     if (!isIntegerGreaterThanZero(value)) {
+        //       callback(new Error(this.$t('rules.invalidInteger')))
+        //     } else if (value.toString().length > 11) {
+        //       callback(new Error(this.$t('rules.noMoreThan11')))
+        //     } else {
+        //       callback()
+        //     }
+        //   }, trigger: 'blur' }
+        // ],
+        // refreshTokenValidity: [
+        //   { validator: (rule, value, callback) => {
+        //     if (value === null || value === '') {
+        //       callback()
+        //     } else if (!isIntegerGreaterThanZero(value)) {
+        //       callback(new Error(this.$t('rules.invalidInteger')))
+        //     } else if (value.toString().length > 11) {
+        //       callback(new Error(this.$t('rules.noMoreThan11')))
+        //     } else {
+        //       callback()
+        //     }
+        //   }, trigger: 'blur' }
+        // ],
+        // authorizedGrantTypes: { required: true, message: this.$t('rules.require'), trigger: 'blur' }
       },
       grantTypes: [
-        { type: 'refresh_token' },
-        { type: 'authorization_code' },
-        { type: 'client_credentials' },
-        { type: 'password' },
-        { type: 'implicit' }
+        { type: 'modbus', prot: 502 },
+        { type: 'bacnet', port: 47808 }
       ]
     }
   },
@@ -176,17 +187,16 @@ export default {
         return '800px'
       }
     },
+    fillPort(val) {
+      console.log(val)
+      if (val === 'bacnet') {
+        this.client.port = 47808
+      } else if (val === 'modbus') {
+        this.client.port = 502
+      }
+    },
     initClient() {
       return {
-        clientId: '',
-        resourceIds: '',
-        clientSecret: '',
-        scope: '',
-        authorizedGrantTypes: '',
-        webServerRedirectUri: '',
-        accessTokenValidity: null,
-        refreshTokenValidity: null,
-        autoapprove: ''
       }
     },
     setClient(val) {
@@ -202,31 +212,11 @@ export default {
     submitForm() {
       this.$refs.form.validate((valid) => {
         if (valid) {
-          this.buttonLoading = true
+          // this.buttonLoading = true
           if (this.type === 'add') {
             // create
-            this.client.authorizedGrantTypes = this.client.authorizedGrantTypes.join(',')
-            this.$post('auth/client', { ...this.client }).then(() => {
-              this.buttonLoading = false
-              this.isVisible = false
-              this.$message({
-                message: this.$t('tips.createSuccess'),
-                type: 'success'
-              })
-              this.$emit('success')
-            })
-          } else {
-            // update
-            this.client.authorizedGrantTypes = this.client.authorizedGrantTypes.join(',')
-            this.$put('auth/client', { ...this.client }).then(() => {
-              this.buttonLoading = false
-              this.isVisible = false
-              this.$message({
-                message: this.$t('tips.updateSuccess'),
-                type: 'success'
-              })
-              this.$emit('success')
-            })
+            this.$parent.save(this.client)
+            this.close()
           }
         } else {
           return false

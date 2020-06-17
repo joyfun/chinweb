@@ -82,6 +82,7 @@ export default {
     },
     client: {
       clientId: '客户端ID',
+      name: '设备名称',
       type: '类型',
       host: '地址',
       port: '端口',
@@ -328,6 +329,7 @@ export default {
     noMoreThan20: '长度不能超过20个字符',
     noMoreThan50: '长度不能超过50个字符',
     noMoreThan100: '长度不能超过100个字符',
+    invalidatePort: '端口号无效',
     invalidInteger: '请输入大于零的整数',
     invalidURL: '不是有效的URL'
   },

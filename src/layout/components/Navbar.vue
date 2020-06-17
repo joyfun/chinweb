@@ -17,7 +17,7 @@
           <span class="user-name">{{ username }}</span>
         </div>
         <el-dropdown-menu slot="dropdown">
-          <router-link to="/profile/index">
+          <!-- <router-link to="/profile/index">
             <el-dropdown-item>
               {{ $t('navbar.profile') }}
             </el-dropdown-item>
@@ -32,7 +32,7 @@
           </a>
           <a target="_blank" href="https://www.kancloud.cn/mrbird/spring-cloud/1263679">
             <el-dropdown-item>{{ $t('navbar.docs') }}</el-dropdown-item>
-          </a>
+          </a> -->
           <el-dropdown-item divided>
             <span style="display:block;" @click="deleteCache">{{ $t('navbar.deleteCache') }}</span>
           </el-dropdown-item>

@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Layout from '@/layout'
-// import db from '@/utils/localstorage'
+import db from '@/utils/localstorage'
 // import request from '@/utils/request'
 import store from '@/store/index'
 import NProgress from 'nprogress'
@@ -86,7 +86,9 @@ const router = new Router({
 const whiteList = ['/login']
 
 let asyncRouter
-
+const permissions = ['user:view', 'role:view', 'menu:view', 'dept:view', 'log:view', 'role:add', 'menu:add', 'dept:add', 'user:export', 'role:export', 'menu:export', 'dept:export', 'log:export', 'monitor:loginlog', 'loginlog:export', 'others:eximport', 'gen:config', 'gen:generate', 'gen:generate:gen', 'client:view', 'client:add', 'client:decrypt', 'monitor:dashboard', 'others:datapermission', 'job:view', 'job:log:view', 'job:add', 'job:export', 'job:log:export']
+console.log(permissions)
+store.commit('account/setPermissions', permissions)
 // 导航守卫，渲染动态路由
 router.beforeEach((to, from, next) => {
   console.log('path start')
@@ -94,383 +96,381 @@ router.beforeEach((to, from, next) => {
   if (whiteList.indexOf(to.path) !== -1) {
     next()
   } else {
-    // const token = db.get('ACCESS_TOKEN')
-    // const user = db.get('USER')
-    // const userRouter = get('USER_ROUTER')
-    // console.log(userRouter)
-    // if (token.length && user) {
-    if (!asyncRouter) {
-    //   if (!userRouter) {
+    const token = db.get('ACCESS_TOKEN')
+    const user = db.get('USER')
+    const userRouter = db.get('USER_ROUTER')
+    console.log(userRouter)
+    if (token.length && user) {
+      if (!asyncRouter) {
+        //   if (!userRouter) {
       // request.get(`system/menu/${user.username}`).then((res) => {
-      const permissions = ['user:view', 'role:view', 'menu:view', 'dept:view', 'log:view', 'role:add', 'menu:add', 'dept:add', 'user:export', 'role:export', 'menu:export', 'dept:export', 'log:export', 'monitor:loginlog', 'loginlog:export', 'others:eximport', 'gen:config', 'gen:generate', 'gen:generate:gen', 'client:view', 'client:add', 'client:decrypt', 'monitor:dashboard', 'others:datapermission', 'job:view', 'job:log:view', 'job:add', 'job:export', 'job:log:export']
-      console.log(permissions)
-      store.commit('account/setPermissions', permissions)
-      asyncRouter = [
-        {
-          'path': '/system',
-          'name': '系统管理',
-          'component': 'Layout',
-          'meta': {
-            'title': '系统管理',
-            'icon': 'el-icon-set-up',
-            'breadcrumb': true
+
+        asyncRouter = [
+          {
+            'path': '/system',
+            'name': '系统管理',
+            'component': 'Layout',
+            'meta': {
+              'title': '系统管理',
+              'icon': 'el-icon-set-up',
+              'breadcrumb': true
+            },
+            'hidden': false,
+            'alwaysShow': true,
+            'children': [
+              {
+                'path': '/system/user',
+                'name': '用户管理',
+                'component': 'febs/system/user/Index',
+                'meta': {
+                  'title': '用户管理',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
+              },
+              {
+                'path': '/system/mqtt',
+                'name': 'MQTT设置',
+                'component': 'febs/system/mqtt/Edit',
+                'meta': {
+                  'title': 'MQTT设置',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
+              },
+              {
+                'path': '/client',
+                'name': '设备管理',
+                'component': 'febs/system/client/Index',
+                'meta': {
+                  'title': '设备管理',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
+              }
+            ]
           },
-          'hidden': false,
-          'alwaysShow': true,
-          'children': [
-            {
-              'path': '/system/user',
-              'name': '用户管理',
-              'component': 'febs/system/user/Index',
-              'meta': {
-                'title': '用户管理',
-                'icon': '',
-                'breadcrumb': true
-              },
-              'hidden': false,
-              'alwaysShow': false
+          {
+            'path': '/monitor',
+            'name': '系统监控',
+            'component': 'Layout',
+            'meta': {
+              'title': '系统监控',
+              'icon': 'el-icon-data-line',
+              'breadcrumb': true
             },
-            {
-              'path': '/system/mqtt',
-              'name': 'MQTT设置',
-              'component': 'febs/system/mqtt/Edit',
-              'meta': {
-                'title': 'MQTT设置',
-                'icon': '',
-                'breadcrumb': true
+            'hidden': false,
+            'alwaysShow': true,
+            'children': [
+              {
+                'path': '/monitor/dashboard',
+                'name': '监控面板',
+                'component': 'febs/monitor/dashboard/Index',
+                'meta': {
+                  'title': '监控面板',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
               },
-              'hidden': false,
-              'alwaysShow': false
-            },
-            {
-              'path': '/client',
-              'name': '客户端管理',
-              'component': 'febs/system/client/Index',
-              'meta': {
-                'title': '客户端管理',
-                'icon': '',
-                'breadcrumb': true
+              {
+                'path': '/monitor/systemlog',
+                'name': '系统日志',
+                'component': 'febs/monitor/systemlog/Index',
+                'meta': {
+                  'title': '系统日志',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
               },
-              'hidden': false,
-              'alwaysShow': false
-            }
-          ]
-        },
-        {
-          'path': '/monitor',
-          'name': '系统监控',
-          'component': 'Layout',
-          'meta': {
-            'title': '系统监控',
-            'icon': 'el-icon-data-line',
-            'breadcrumb': true
+              {
+                'path': '/monitor/loginlog',
+                'name': '登录日志',
+                'component': 'febs/monitor/loginlog/Index',
+                'meta': {
+                  'title': '登录日志',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
+              }
+            ]
           },
-          'hidden': false,
-          'alwaysShow': true,
-          'children': [
-            {
-              'path': '/monitor/dashboard',
-              'name': '监控面板',
-              'component': 'febs/monitor/dashboard/Index',
-              'meta': {
-                'title': '监控面板',
-                'icon': '',
-                'breadcrumb': true
-              },
-              'hidden': false,
-              'alwaysShow': false
+          {
+            'path': '/route',
+            'name': '网关管理',
+            'component': 'Layout',
+            'meta': {
+              'title': '网关管理',
+              'icon': 'el-icon-odometer',
+              'breadcrumb': true
             },
-            {
-              'path': '/monitor/systemlog',
-              'name': '系统日志',
-              'component': 'febs/monitor/systemlog/Index',
-              'meta': {
-                'title': '系统日志',
-                'icon': '',
-                'breadcrumb': true
+            'hidden': false,
+            'alwaysShow': true,
+            'children': [
+              {
+                'path': '/route/user',
+                'name': '网关用户',
+                'component': 'febs/route/routeuser/Index',
+                'meta': {
+                  'title': '网关用户',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
               },
-              'hidden': false,
-              'alwaysShow': false
-            },
-            {
-              'path': '/monitor/loginlog',
-              'name': '登录日志',
-              'component': 'febs/monitor/loginlog/Index',
-              'meta': {
-                'title': '登录日志',
-                'icon': '',
-                'breadcrumb': true
+              {
+                'path': '/route/log',
+                'name': '网关日志',
+                'component': 'febs/route/routelog/Index',
+                'meta': {
+                  'title': '网关日志',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
               },
-              'hidden': false,
-              'alwaysShow': false
-            }
-          ]
-        },
-        {
-          'path': '/route',
-          'name': '网关管理',
-          'component': 'Layout',
-          'meta': {
-            'title': '网关管理',
-            'icon': 'el-icon-odometer',
-            'breadcrumb': true
+              {
+                'path': '/route/ratelimitrule',
+                'name': '限流规则',
+                'component': 'febs/route/ratelimitrule/Index',
+                'meta': {
+                  'title': '限流规则',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
+              },
+              {
+                'path': '/route/ratelimitlog',
+                'name': '限流日志',
+                'component': 'febs/route/ratelimitlog/Index',
+                'meta': {
+                  'title': '限流日志',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
+              },
+              {
+                'path': '/route/blacklist',
+                'name': '黑名单管理',
+                'component': 'febs/route/blacklist/Index',
+                'meta': {
+                  'title': '黑名单管理',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
+              },
+              {
+                'path': '/route/blocklog',
+                'name': '黑名单日志',
+                'component': 'febs/route/blocklog/Index',
+                'meta': {
+                  'title': '黑名单日志',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
+              }
+            ]
           },
-          'hidden': false,
-          'alwaysShow': true,
-          'children': [
-            {
-              'path': '/route/user',
-              'name': '网关用户',
-              'component': 'febs/route/routeuser/Index',
-              'meta': {
-                'title': '网关用户',
-                'icon': '',
-                'breadcrumb': true
-              },
-              'hidden': false,
-              'alwaysShow': false
+          {
+            'path': '/job',
+            'name': '任务调度',
+            'component': 'Layout',
+            'meta': {
+              'title': '任务调度',
+              'icon': 'el-icon-alarm-clock',
+              'breadcrumb': true
             },
-            {
-              'path': '/route/log',
-              'name': '网关日志',
-              'component': 'febs/route/routelog/Index',
-              'meta': {
-                'title': '网关日志',
-                'icon': '',
-                'breadcrumb': true
+            'hidden': false,
+            'alwaysShow': true,
+            'children': [
+              {
+                'path': '/job/list',
+                'name': '任务列表',
+                'component': 'febs/job/job/Index',
+                'meta': {
+                  'title': '任务列表',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
               },
-              'hidden': false,
-              'alwaysShow': false
-            },
-            {
-              'path': '/route/ratelimitrule',
-              'name': '限流规则',
-              'component': 'febs/route/ratelimitrule/Index',
-              'meta': {
-                'title': '限流规则',
-                'icon': '',
-                'breadcrumb': true
-              },
-              'hidden': false,
-              'alwaysShow': false
-            },
-            {
-              'path': '/route/ratelimitlog',
-              'name': '限流日志',
-              'component': 'febs/route/ratelimitlog/Index',
-              'meta': {
-                'title': '限流日志',
-                'icon': '',
-                'breadcrumb': true
-              },
-              'hidden': false,
-              'alwaysShow': false
-            },
-            {
-              'path': '/route/blacklist',
-              'name': '黑名单管理',
-              'component': 'febs/route/blacklist/Index',
-              'meta': {
-                'title': '黑名单管理',
-                'icon': '',
-                'breadcrumb': true
-              },
-              'hidden': false,
-              'alwaysShow': false
-            },
-            {
-              'path': '/route/blocklog',
-              'name': '黑名单日志',
-              'component': 'febs/route/blocklog/Index',
-              'meta': {
-                'title': '黑名单日志',
-                'icon': '',
-                'breadcrumb': true
-              },
-              'hidden': false,
-              'alwaysShow': false
-            }
-          ]
-        },
-        {
-          'path': '/job',
-          'name': '任务调度',
-          'component': 'Layout',
-          'meta': {
-            'title': '任务调度',
-            'icon': 'el-icon-alarm-clock',
-            'breadcrumb': true
+              {
+                'path': '/job/log',
+                'name': '调度日志',
+                'component': 'febs/job/log/Index',
+                'meta': {
+                  'title': '调度日志',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
+              }
+            ]
           },
-          'hidden': false,
-          'alwaysShow': true,
-          'children': [
-            {
-              'path': '/job/list',
-              'name': '任务列表',
-              'component': 'febs/job/job/Index',
-              'meta': {
-                'title': '任务列表',
-                'icon': '',
-                'breadcrumb': true
-              },
-              'hidden': false,
-              'alwaysShow': false
+          {
+            'path': '/others',
+            'name': '其他模块',
+            'component': 'Layout',
+            'meta': {
+              'title': '其他模块',
+              'icon': 'el-icon-shopping-bag-1',
+              'breadcrumb': true
             },
-            {
-              'path': '/job/log',
-              'name': '调度日志',
-              'component': 'febs/job/log/Index',
-              'meta': {
-                'title': '调度日志',
-                'icon': '',
-                'breadcrumb': true
+            'hidden': false,
+            'alwaysShow': true,
+            'children': [
+              {
+                'path': '/others/eximport',
+                'name': '导入导出',
+                'component': 'febs/others/eximport/Index',
+                'meta': {
+                  'title': '导入导出',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
               },
-              'hidden': false,
-              'alwaysShow': false
-            }
-          ]
-        },
-        {
-          'path': '/others',
-          'name': '其他模块',
-          'component': 'Layout',
-          'meta': {
-            'title': '其他模块',
-            'icon': 'el-icon-shopping-bag-1',
-            'breadcrumb': true
+              {
+                'path': '/others/blog',
+                'name': '个人博客',
+                'component': 'febs/others/blog/Index',
+                'meta': {
+                  'title': '个人博客',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
+              },
+              {
+                'path': '/others/datapermission',
+                'name': '数据权限',
+                'component': 'febs/others/datapermission/Index',
+                'meta': {
+                  'title': '数据权限',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
+              }
+            ]
           },
-          'hidden': false,
-          'alwaysShow': true,
-          'children': [
-            {
-              'path': '/others/eximport',
-              'name': '导入导出',
-              'component': 'febs/others/eximport/Index',
-              'meta': {
-                'title': '导入导出',
-                'icon': '',
-                'breadcrumb': true
-              },
-              'hidden': false,
-              'alwaysShow': false
+          {
+            'path': '/components',
+            'name': '静态组件',
+            'component': 'Layout',
+            'meta': {
+              'title': '静态组件',
+              'icon': 'el-icon-present',
+              'breadcrumb': true
             },
-            {
-              'path': '/others/blog',
-              'name': '个人博客',
-              'component': 'febs/others/blog/Index',
-              'meta': {
-                'title': '个人博客',
-                'icon': '',
-                'breadcrumb': true
+            'hidden': false,
+            'alwaysShow': true,
+            'children': [
+              {
+                'path': '/two',
+                'name': '二级菜单',
+                'component': 'demos/two/Index',
+                'meta': {
+                  'title': '二级菜单',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': true,
+                'children': [
+                  {
+                    'path': '/three',
+                    'name': '三级菜单',
+                    'component': 'demos/two/three/Index',
+                    'meta': {
+                      'title': '三级菜单',
+                      'icon': '',
+                      'breadcrumb': true
+                    },
+                    'hidden': false,
+                    'alwaysShow': false
+                  }
+                ]
               },
-              'hidden': false,
-              'alwaysShow': false
-            },
-            {
-              'path': '/others/datapermission',
-              'name': '数据权限',
-              'component': 'febs/others/datapermission/Index',
-              'meta': {
-                'title': '数据权限',
-                'icon': '',
-                'breadcrumb': true
+              {
+                'path': '/components/markdown',
+                'name': 'MarkDown',
+                'component': 'demos/markdown',
+                'meta': {
+                  'title': 'MarkDown',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
               },
-              'hidden': false,
-              'alwaysShow': false
-            }
-          ]
-        },
-        {
-          'path': '/components',
-          'name': '静态组件',
-          'component': 'Layout',
-          'meta': {
-            'title': '静态组件',
-            'icon': 'el-icon-present',
-            'breadcrumb': true
+              {
+                'path': '/components/tinymce',
+                'name': '富文本编辑器',
+                'component': 'demos/tinymce',
+                'meta': {
+                  'title': '富文本编辑器',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
+              }
+            ]
           },
-          'hidden': false,
-          'alwaysShow': true,
-          'children': [
-            {
-              'path': '/two',
-              'name': '二级菜单',
-              'component': 'demos/two/Index',
-              'meta': {
-                'title': '二级菜单',
-                'icon': '',
-                'breadcrumb': true
-              },
-              'hidden': false,
-              'alwaysShow': true,
-              'children': [
-                {
-                  'path': '/three',
-                  'name': '三级菜单',
-                  'component': 'demos/two/three/Index',
-                  'meta': {
-                    'title': '三级菜单',
-                    'icon': '',
-                    'breadcrumb': true
-                  },
-                  'hidden': false,
-                  'alwaysShow': false
-                }
-              ]
-            },
-            {
-              'path': '/components/markdown',
-              'name': 'MarkDown',
-              'component': 'demos/markdown',
-              'meta': {
-                'title': 'MarkDown',
-                'icon': '',
-                'breadcrumb': true
-              },
-              'hidden': false,
-              'alwaysShow': false
-            },
-            {
-              'path': '/components/tinymce',
-              'name': '富文本编辑器',
-              'component': 'demos/tinymce',
-              'meta': {
-                'title': '富文本编辑器',
-                'icon': '',
-                'breadcrumb': true
-              },
-              'hidden': false,
-              'alwaysShow': false
-            }
-          ]
-        },
-        {
-          'path': '*',
-          'name': '404',
-          'component': 'error-page/404',
-          'hidden': false,
-          'alwaysShow': false
-        }
-      ]
-      console.log(asyncRouter)
-      store.commit('account/setRoutes', asyncRouter)
-      save('USER_ROUTER', asyncRouter)
-      go(to, next)
+          {
+            'path': '*',
+            'name': '404',
+            'component': 'error-page/404',
+            'hidden': false,
+            'alwaysShow': false
+          }
+        ]
+        console.log(asyncRouter)
+        store.commit('account/setRoutes', asyncRouter)
+        save('USER_ROUTER', asyncRouter)
+        go(to, next)
       // })
-    //   } else {
-    //     asyncRouter = userRouter
-    //     go(to, next)
-    //   }
+        //   } else {
+        //     asyncRouter = userRouter
+        //     go(to, next)
+        //   }
+      } else {
+        next()
+      }
     } else {
-      next()
+      if (to.path === '/login') {
+        next()
+      } else {
+        next('/login')
+      }
     }
-    // } else {
-    //   if (to.path === '/login') {
-    //     next()
-    //   } else {
-    //     next('/login')
-    //   }
-    // }
   }
 })
 

@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-form ref="form" :model="mqtt" label-position="right" label-width="100px">
       <el-form-item :label="$t('mqtt.name')" prop="name">
-        <el-input v-model="mqtt.host" />
+        <el-input v-model="mqtt.name" />
       </el-form-item>
       <el-form-item label="活动名称" prop="host">
         <el-input v-model="mqtt.host" />
@@ -66,7 +66,7 @@ export default {
       },
       set() {
         this.close()
-        this.reset()
+        // this.reset()
       }
     }
   },
@@ -105,7 +105,23 @@ export default {
       this.$emit('close')
     },
     submitForm() {
-    //  98
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          this.buttonLoading = true
+          // create
+          this.$postJson('api/mqtt', { ...this.mqtt }).then(() => {
+            this.buttonLoading = false
+            this.isVisible = false
+            this.$message({
+              message: this.$t('tips.updateSuccess'),
+              type: 'success'
+            })
+            this.$emit('success')
+          })
+        } else {
+          return false
+        }
+      })
     },
     reset() {
       // 先清除校验，再清除表单，不然有奇怪的bug

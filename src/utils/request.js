@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { Message, MessageBox } from 'element-ui'
 import { authorizationValue } from '@/settings'
-import store from '@/store/index'
+// import store from '@/store/index'
 import router from '@/router'
 import { getToken, getRefreshToken, getExpireTime } from '@/utils/auth'
 import NProgress from 'nprogress'
@@ -84,10 +84,12 @@ service.interceptors.response.use((config) => {
         })
         break
       case 401:
-        Message({
-          message: '很抱歉，认证已失效，请重新登录',
-          type: 'error',
-          duration: messageDuration
+        MessageBox.alert('登录已过期，请重新登录', '温馨提示', {
+          confirmButtonText: '确定',
+          showClose: false,
+          callback: action => {
+            router.push('/login')
+          }
         })
         break
       default:
@@ -126,12 +128,9 @@ const request = {
   },
   login(url, params) {
     params['grant_type'] = 'password'
-    return service.post(url, params, {
-      transformRequest: [(params) => {
-        return tansParams(params)
-      }],
+    return service.post(url, JSON.stringify(params), {
       headers: {
-        'Authorization': authorizationValue
+        'Content-Type': 'application/json'
       }
     })
   },
@@ -142,6 +141,13 @@ const request = {
       }],
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    })
+  },
+  postJson(url, params) {
+    return service.post(url, JSON.stringify(params), {
+      headers: {
+        'Content-Type': 'application/json'
       }
     })
   },
@@ -157,6 +163,7 @@ const request = {
   },
   get(url, params) {
     let _params
+    console.log(params)
     if (Object.is(params, undefined)) {
       _params = ''
     } else {
@@ -238,22 +245,22 @@ function tansParams(params) {
 }
 
 async function queryRefreshToken(config, refreshToken) {
-  const result = await request.refresh('auth/oauth/token', {
-    refresh_token: refreshToken
+  MessageBox.alert('登录已过期，请重新登录', '温馨提示', {
+    confirmButtonText: '确定',
+    showClose: false,
+    callback: action => {
+      router.push('/login')
+    }
   })
-  if (result.status === success) {
-    saveData(result.data)
-    config.headers['Authorization'] = 'bearer ' + getToken()
-  }
   return config
 }
 
-function saveData(data) {
-  store.commit('account/setAccessToken', data.access_token)
-  store.commit('account/setRefreshToken', data.refresh_token)
-  const current = new Date()
-  const expireTime = current.setTime(current.getTime() + 1000 * data.expires_in)
-  store.commit('account/setExpireTime', expireTime)
-}
+// function saveData(data) {
+//   store.commit('account/setAccessToken', data.access_token)
+//   store.commit('account/setRefreshToken', data.refresh_token)
+//   const current = new Date()
+//   const expireTime = current.setTime(current.getTime() + 1000 * data.expires_in)
+//   store.commit('account/setExpireTime', expireTime)
+// }
 
 export default request

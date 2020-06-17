@@ -46,7 +46,7 @@
             @keyup.enter.native="handleLogin"
           />
         </el-form-item>
-        <el-form-item prop="code" class="code-input">
+        <!-- <el-form-item prop="code" class="code-input">
           <el-input
             ref="code"
             v-model="loginForm.code"
@@ -59,7 +59,7 @@
             @keyup.enter.native="handleLogin"
           />
         </el-form-item>
-        <img :src="imageCode" alt="codeImage" class="code-image" @click="getCodeImage">
+        <img :src="imageCode" alt="codeImage" class="code-image" @click="getCodeImage"> -->
         <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:14px;" @click.native.prevent="handleLogin">
           {{ $t('login.logIn') }}
         </el-button>
@@ -205,6 +205,8 @@ export default {
       redirect: undefined,
       otherQuery: {},
       randomId: randomNum(24, 16),
+      r: '',
+      salt: '',
       imageCode: '',
       page: {
         width: window.screen.width * 0.5,
@@ -223,8 +225,10 @@ export default {
     getCodeImage() {
       axios({
         method: 'GET',
-        url: `/api/rnd?key=${this.randomId}`
+        url: `${process.env.VUE_APP_BASE_API}api/rnd?key=${this.randomId}`
       }).then(res => {
+        this.salt = res.data.token
+        this.r = res.data.r
         console.log(res.data)
       })
     },
@@ -314,24 +318,54 @@ export default {
       }
     },
     handleLogin() {
+      const sha256 = require('js-sha256').sha256
       let username_c = false
       let password_c = false
-      let code_c = false
       this.$refs.loginForm.validateField('username', e => { if (!e) { username_c = true } })
       this.$refs.loginForm.validateField('password', e => { if (!e) { password_c = true } })
-      this.$refs.loginForm.validateField('code', e => { if (!e) { code_c = true } })
-      if (username_c && password_c && code_c) {
+      if (username_c && password_c) {
         this.loading = true
         const that = this
         // auth/oauth/tokne
-        this.$login('auth/token', {
-          ...that.loginForm,
-          key: this.randomId
+        this.$login('/login', {
+          user: this.loginForm.username,
+          password: sha256(this.salt + this.loginForm.password),
+          seed: this.r,
+          s: this.salt
         }).then((r) => {
           const data = r.data
           this.saveLoginData(data)
-          this.getUserDetailInfo()
-          this.loginSuccessCallback()
+          this.$store.commit('account/setUser', {
+            'password': null,
+            'username': this.loginForm.username,
+            'authorities': [
+            ],
+            'accountNonExpired': true,
+            'accountNonLocked': true,
+            'credentialsNonExpired': true,
+            'enabled': true,
+            'userId': 15,
+            'avatar': '20180414165815.jpg',
+            'email': '',
+            'mobile': '',
+            'sex': '1',
+            'deptId': 7,
+            'deptName': null,
+            'roleId': '2',
+            'roleName': '注册用户',
+            'lastLoginTime': '2020-06-11 22:46:16',
+            'description': '注册账户11231123455',
+            'status': '1',
+            'deptIds': '1,2,4,5'
+          })
+          this.$message({
+            message: this.$t('tips.loginSuccess'),
+            type: 'success'
+          })
+          this.loading = false
+          this.$router.push('/')
+          //   this.getUserDetailInfo()
+          // this.loginSuccessCallback()
         }).catch((error) => {
           console.error(error)
           that.loading = false
@@ -343,8 +377,8 @@ export default {
       this.$store.commit('account/setAccessToken', data.access_token)
       this.$store.commit('account/setRefreshToken', data.refresh_token)
       const current = new Date()
-      const expireTime = current.setTime(current.getTime() + 1000 * data.expires_in)
-      this.$store.commit('account/setExpireTime', expireTime)
+      const expireTime = current.setTime(data.expire)
+      this.$store.commit('account/setExpireTime', expireTime * 1000)
     },
     getUserDetailInfo() {
       this.$get('auth/user').then((r) => {
@@ -365,7 +399,7 @@ export default {
       })
     },
     loginSuccessCallback() {
-      this.$get('system/user/success').catch((e) => { console.log(e) })
+      // this.$get('system/user/success').catch((e) => { console.log(e) })
     }
   }
 }

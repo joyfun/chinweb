@@ -1,5 +1,31 @@
 <template>
   <div class="app-container">
+    <div class="filter-container">
+      <el-input v-model="queryParams.clientId" :placeholder="$t('table.client.clientId')" class="filter-item search-item" />
+      <el-button class="filter-item" type="primary" plain @click="search">
+        {{ $t('table.search') }}
+      </el-button>
+      <el-button class="filter-item" type="warning" plain @click="reset">
+        {{ $t('table.reset') }}
+      </el-button>
+      <el-button class="filter-item" type="info" plain @click="add">
+        {{ $t('table.add') }}
+      </el-button>
+      <el-button class="filter-item" type="info" plain @click="pointsAdd">
+        {{ $t('table.edit') }}
+      </el-button>
+    </div>
+    <inline-edit-table
+      ref="edit"
+      :dialog-visible="pointDialog.isVisible"
+      :title="pointDialog.title"
+      :type="pointDialog.type"
+      :device-info="curDevice"
+      :plist="curDevice.points"
+      @close="editClose"
+      @success="editSuccess"
+    />
+
     <el-table
       ref="table"
       :key="tableKey"
@@ -11,6 +37,7 @@
       :highlight-current-row="true"
       @selection-change="onSelectChange"
     >
+
       <el-table-column type="selection" align="center" width="40px" />
       <el-table-column :label="$t('table.client.clientId')" prop="deviceId" :show-overflow-tooltip="true" align="center">
         <template slot-scope="scope">
@@ -22,12 +49,12 @@
           <span>{{ scope.row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.client.type')" prop="type" :show-overflow-tooltip="true" align="center" min-width="100px">
+      <el-table-column :label="$t('table.client.type')" prop="type" :show-overflow-tooltip="true" align="center" min-width="120px">
         <template slot-scope="scope">
           <el-tag size="medium">{{ scope.row.type }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.client.host')" prop="host" :show-overflow-tooltip="true" align="center" min-width="100px">
+      <el-table-column :label="$t('table.client.host')" prop="host" :show-overflow-tooltip="true" align="center" min-width="120px">
         <template slot-scope="scope">
           <span>{{ scope.row.host }}</span>
         </template>
@@ -37,24 +64,21 @@
           <span>{{ scope.row.port }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.client.site')" prop="slave" :show-overflow-tooltip="true" align="center" min-width="170px">
+      <el-table-column :label="$t('table.client.site')" prop="slave" :show-overflow-tooltip="true" align="center" min-width="60px">
         <template slot-scope="scope">
           <span>{{ scope.row.slave }}</span>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('table.operation')" align="center" min-width="150px" class-name="small-padding fixed-width" fixed="right">
-        <!-- <template slot-scope="{row}">
-          <i v-hasPermission="['client:decrypt']" class="el-icon-unlock table-operation" style="color: #87d068;" @click="unlock(row)" />
-          <i v-hasPermission="['client:update']" class="el-icon-setting table-operation" style="color: #2db7f5;" @click="edit(row)" />
-          <i v-hasPermission="['client:delete']" class="el-icon-delete table-operation" style="color: #f50;" @click="singleDelete(row)" />
-          <el-link v-has-no-permission="['client:decrypt','client:update','client:delete']" class="no-perm">
-            {{ $t('tips.noPermission') }}
-          </el-link>
-        </template> -->
+      <el-table-column :label="$t('table.operation')" align="center" min-width="60px" class-name="small-padding fixed-width" fixed="right">
+        <template slot-scope="scope">
+          <!-- <i v-hasPermission="['client:decrypt']" class="el-icon-unlock table-operation" style="color: #87d068;" @click="unlock(row)" />
+          <i v-hasPermission="['client:update']" class="el-icon-setting table-operation" style="color: #2db7f5;" @click="edit(row)" /> -->
+          <i class="el-icon-setting table-operation" @click="pointsAdd(scope.$index)" />
+        </template>
       </el-table-column>
     </el-table>
     <pagination v-show="total>0" :total="total" :page.sync="pagination.num" :limit.sync="pagination.size" @pagination="search" />
-    <client-edit
+    <!----> <client-edit
       ref="edit"
       :dialog-visible="dialog.isVisible"
       :title="dialog.title"
@@ -67,10 +91,11 @@
 <script>
 import Pagination from '@/components/Pagination'
 import ClientEdit from './Edit'
+import InlineEditTable from './Points'
 
 export default {
   name: 'ClientManage',
-  components: { Pagination, ClientEdit },
+  components: { Pagination, ClientEdit, InlineEditTable },
   filters: {
     approveFilter(status) {
       const map = {
@@ -83,6 +108,12 @@ export default {
   data() {
     return {
       dialog: {
+        isVisible: false,
+        title: '',
+        type: ''
+      },
+      curDevice: {},
+      pointDialog: {
         isVisible: false,
         title: '',
         type: ''
@@ -118,6 +149,10 @@ export default {
     },
     editClose() {
       this.dialog.isVisible = false
+      this.pointDialog.isVisible = false
+    },
+    pointsClose() {
+      this.pointDialog.isVisible = false
     },
     onSelectChange(selection) {
       this.selection = selection
@@ -126,6 +161,13 @@ export default {
       this.dialog.title = this.$t('common.add')
       this.dialog.isVisible = true
       this.dialog.type = 'add'
+    },
+    pointsAdd(index) {
+      this.curDevice = this.list[index]
+      console.log(this.curDevice)
+      this.pointDialog.title = this.$t('common.add')
+      this.pointDialog.isVisible = true
+      this.pointDialog.type = 'add'
     },
     edit(row) {
       this.$refs.edit.setClient(row)
@@ -165,9 +207,19 @@ export default {
         this.clearSelections()
       })
     },
-    singleDelete(row) {
-      this.$refs.table.toggleRowSelection(row, true)
-      this.batchDelete()
+    singleDelete(index) {
+      this.$confirm(this.$t('tips.confirmDelete'), this.$t('common.tips'), {
+        confirmButtonText: this.$t('common.confirm'),
+        cancelButtonText: this.$t('common.cancel'),
+        type: 'warning'
+      }).then(() => {
+        this.list.splice(index, 1)
+        this.save()
+      }).catch(() => {
+        this.clearSelections()
+      })
+    //   this.$refs.table.toggleRowSelection(row, true)
+    //   this.batchDelete()
     },
     delete(clientIds) {
       this.loading = true
@@ -183,8 +235,24 @@ export default {
       this.$refs.table.clearSelection()
     },
     search() {
-      this.fetch({
-        ...this.queryParams
+    //   this.fetch({
+    //     ...this.queryParams
+    //   })
+    },
+    save(client) {
+      if (client && client.port) {
+        this.list.push(client)
+      }
+      this.buttonLoading = true
+      // create
+      this.$postJson('api/devices', { devices: this.list }).then(() => {
+        this.buttonLoading = false
+        this.isVisible = false
+        this.$message({
+          message: this.$t('tips.updateSuccess'),
+          type: 'success'
+        })
+        this.$emit('success')
       })
     },
     reset() {
@@ -196,7 +264,7 @@ export default {
         ...params
       }).then((r) => {
         this.list = r.data
-        console.log(this.list)
+        // console.log(this.list)
         this.loading = false
       })
     }
