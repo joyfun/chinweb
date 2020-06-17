@@ -21,7 +21,6 @@
       :title="pointDialog.title"
       :type="pointDialog.type"
       :device-info="curDevice"
-      :plist="curDevice.points"
       @close="editClose"
       @success="editSuccess"
     />
@@ -74,6 +73,8 @@
           <!-- <i v-hasPermission="['client:decrypt']" class="el-icon-unlock table-operation" style="color: #87d068;" @click="unlock(row)" />
           <i v-hasPermission="['client:update']" class="el-icon-setting table-operation" style="color: #2db7f5;" @click="edit(row)" /> -->
           <i class="el-icon-setting table-operation" @click="pointsAdd(scope.$index)" />
+          <i class="el-icon-delete table-operation" style="color: #f50;" @click="singleDelete(row)" />
+
         </template>
       </el-table-column>
     </el-table>

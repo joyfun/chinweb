@@ -103,7 +103,9 @@ export default {
     },
     plist: {
       get() {
-        return this.deviceInfo.plist
+        // return this.deviceInfo.points
+        if (this.deviceInfo && this.deviceInfo.points) { return this.deviceInfo.points }
+        return []
       },
       set(val) {
         this.deviceInfo.plist = val
@@ -140,7 +142,7 @@ export default {
     },
     savePoints() {
       this.deviceInfo.points = this.plist
-      console.log(this.deviceInfo)
+      delete this.deviceInfo.plist
       this.$postJson('api/points', this.deviceInfo).then((res) => {
         this.$message({
           message: this.$t('tips.updateSuccess'),
