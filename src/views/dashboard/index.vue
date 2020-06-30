@@ -61,7 +61,7 @@
           <div id="visit-count-chart" style="width: 100%;height: 370px" />
         </div>
       </el-col>
-      <el-col :xs="24" :sm="12">
+      <!-- <el-col :xs="24" :sm="12">
         <div class="app-container">
           <el-table
             :data="server"
@@ -92,7 +92,7 @@
             />
           </el-table>
         </div>
-      </el-col>
+      </el-col> -->
     </el-row>
   </div>
 </template>

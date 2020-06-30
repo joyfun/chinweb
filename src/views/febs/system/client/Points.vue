@@ -8,8 +8,48 @@
     :visible.sync="isVisible"
   >
     <div class="filter-container">
+      <el-form ref="form" :model="point" label-position="right" label-width="165px">
+        <el-form-item :label="$t('table.client.address')" prop="name">
+          <el-input v-model="client.name" :readonly="type === 'add' ? false : 'readonly'" />
+        </el-form-item>
+        <el-form-item :label="$t('table.client.type')" prop="type">
+          <el-select v-model="client.type" value="" placeholder="" style="width:100%" @change="fillPort">
+            <el-option
+              v-for="item in addressType"
+              :key="item"
+              :label="item"
+              :value="item"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item :label="$t('table.client.dataType')" prop="datatype">
+          <el-select v-model="client.datatype" value="" placeholder="" style="width:100%" @change="fillPort">
+            <el-option
+              v-for="item in ntype"
+              :key="item"
+              :label="item"
+              :value="item"
+            />
+          </el-select>
+        </el-form-item>
+      <!-- <el-form-item :label="$t('table.client.webServerRedirectUri')" prop="webServerRedirectUri">
+        <el-input v-model="client.webServerRedirectUri" />
+      </el-form-item>
+      <el-form-item :label="$t('table.client.accessTokenValidity')" prop="accessTokenValidity">
+        <el-input v-model="client.accessTokenValidity" />
+      </el-form-item>
+      <el-form-item :label="$t('table.client.refreshTokenValidity')" prop="refreshTokenValidity">
+        <el-input v-model="client.refreshTokenValidity" />
+      </el-form-item>
+      <el-form-item :label="$t('table.client.autoapprove')" prop="autoapprove">
+        <el-select v-model="client.autoapprove" placeholder="" value="" style="width:100%">
+          <el-option label="true" value="1" />
+          <el-option label="false" value="0" />
+        </el-select>
+      </el-form-item> -->
+      </el-form>
 
-      <el-button class="filter-item" type="info" plain @click="getPoints">
+      <el-button class="filter-item" type="info" plain @click="startLink">
         {{ $t('common.save') }}
       </el-button>
     </div>
@@ -59,6 +99,7 @@
 </template>
 
 <script>
+const { DSLink } = require('dslink/js/web')
 
 export default {
   name: 'InlineEditTable',
@@ -79,12 +120,12 @@ export default {
   },
   data() {
     return {
-
+      point: {},
       screenWidth: 0,
       buttonLoading: false,
       width: this.initWidth(),
       client: this.initClient(),
-      addressType: [],
+
       bacnet_type: ['AI', 'AO', 'BI', 'BO', 'BV', 'CAL'],
       modbus_type: ['DI', 'DO', 'AI', 'AO'],
       ntype: ['bool', 'int', 'float'],
@@ -92,6 +133,14 @@ export default {
     }
   },
   computed: {
+    addressType: {
+      get() {
+        if (this.deviceInfo.type === 'modbus') {
+          return this.modbus_type
+        } return this.bacnet_type
+      },
+      set() {}
+    },
     isVisible: {
       get() {
         return this.dialogVisible
@@ -139,6 +188,31 @@ export default {
         this.deviceInfo = res.data
         if (res.data.points) { this.plist = res.data.points }
       })
+    },
+    startLink() {
+    //   console.log('btn clicke')
+      this.$get('jsconn').then(async(r) => {
+        if (r.data) {
+          const url = 'ws://localhost:8080/ws?auth=' + r.data.auth + '&dsId=' + r.data.dsId
+          const link = new DSLink(url, 'json')
+          link.connect()
+          const { requester } = link
+          console.log(await requester.subscribe('/sys/dataOutPerSecond', (val) => { console.log(val) }))
+          console.log(
+            (await requester.listOnce('/sys'))
+              .children
+          )
+          console.log(
+            (await requester.invokeOnce('/sys/get_server_log', { lines: 5 }))
+              .result.log
+          )
+        }
+      })
+
+      //    console.log(await requester.subscribeOnce('/sys/dataOutPerSecond'));
+    },
+    addPoints(point) {
+      this.deviceInfo.points.push(point)
     },
     savePoints() {
       this.deviceInfo.points = this.plist

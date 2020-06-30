@@ -17,6 +17,7 @@ import request from '@/utils/request'
 
 import * as filters from './filters' // global filters
 import { hasPermission, hasNoPermission, hasAnyPermission } from './utils/permissionDirect'
+const { DSLink } = require('dslink/js/web')
 
 const Plugins = [
   hasPermission,
@@ -40,6 +41,7 @@ Vue.prototype.$delete = request.delete
 Vue.prototype.$download = request.download
 Vue.prototype.$upload = request.upload
 Vue.prototype.$login = request.login
+Vue.prototype.$link = DSLink
 
 // register global utility filters
 Object.keys(filters).forEach(key => {

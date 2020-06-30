@@ -73,7 +73,7 @@
           <!-- <i v-hasPermission="['client:decrypt']" class="el-icon-unlock table-operation" style="color: #87d068;" @click="unlock(row)" />
           <i v-hasPermission="['client:update']" class="el-icon-setting table-operation" style="color: #2db7f5;" @click="edit(row)" /> -->
           <i class="el-icon-setting table-operation" @click="pointsAdd(scope.$index)" />
-          <i class="el-icon-delete table-operation" style="color: #f50;" @click="singleDelete(row)" />
+          <i class="el-icon-delete table-operation" style="color: #f50;" @click="singleDelete(scope.$index)" />
 
         </template>
       </el-table-column>
@@ -209,12 +209,13 @@ export default {
       })
     },
     singleDelete(index) {
-      this.$confirm(this.$t('tips.confirmDelete'), this.$t('common.tips'), {
+      this.$confirm(this.$t('tips.confirmDelete') + index, this.$t('common.tips'), {
         confirmButtonText: this.$t('common.confirm'),
         cancelButtonText: this.$t('common.cancel'),
         type: 'warning'
       }).then(() => {
         this.list.splice(index, 1)
+        console.log(this.list)
         this.save()
       }).catch(() => {
         this.clearSelections()

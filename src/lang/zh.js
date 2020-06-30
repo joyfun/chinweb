@@ -87,6 +87,7 @@ export default {
       host: '地址',
       port: '端口',
       site: '站号',
+      dataType: '数值类型',
       clientSecret: '客户端秘钥',
       scope: '范围',
       authorizedGrantTypes: '认证模式',
