@@ -385,15 +385,9 @@ export default {
     goodAfternoon: '下午好',
     goodEvening: '晚上好',
     randomMessage: {
-      a: '喝杯咖啡休息下吧☕',
-      b: '要不要和朋友打局LOL',
-      c: '今天又写了几个Bug🐞呢',
-      d: '今天在群里吹水了吗',
-      e: '今天吃了什么好吃的呢',
-      f: '今天您微笑了吗😊',
-      g: '今天帮别人解决问题了吗',
-      h: '准备吃些什么呢',
-      i: '周末要不要去看电影？'
+      a: '欢迎使用AR502H AGENT',
+      b: '畅想物联世界'
+
     },
     allProject: '所有项目',
     noDept: '暂无部门',

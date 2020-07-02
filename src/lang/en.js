@@ -14,7 +14,7 @@ export default {
     deleteCache: 'DeleteCache'
   },
   login: {
-    title: 'FEBS System Login',
+    title: 'AR502H  Login',
     logIn: 'Login',
     username: 'Username',
     password: 'Password',
@@ -223,7 +223,7 @@ export default {
       needLogin: 'The operation of the gateway management module requires authentication, ',
       toLogin: ' Click to login',
       tips: 'The function of this module needs to be enhanced in advance. For the method of opening, please refer to the document: ',
-      title: 'FEBS Gateway Certification',
+      title: 'AR502H Gateway Certification',
       login: 'Login'
     },
     refresh: 'Refresh',
@@ -253,7 +253,7 @@ export default {
     sidebarLogo: 'Sidebar Logo'
   },
   system: {
-    title: 'FEBS System'
+    title: 'AR502H System'
   },
   tips: {
     usernameShouldNotBeEmpty: 'Username can not be empty',
@@ -270,7 +270,7 @@ export default {
     confirmDelete: 'The selected data will be permanently deleted, continue?',
     confirmDeleteCache: 'Whether to clear the user permission cache immediately?',
     containCurrentUser: 'The operation has been canceled because it contains the currently logged in user',
-    neverLogin: 'Never logged in to the FEBS system',
+    neverLogin: 'Never logged in to the AR502H system',
     nothing: 'Nothing',
     topId: 'A value of 0 indicates a top-level node',
     choose: 'Select: ',
@@ -278,7 +278,7 @@ export default {
     onlyChooseOne: 'Only one node can be selected as the parent node',
     noNodeSelected: 'Please select a node first',
     confirmDeleteNode: 'The selected node and its child nodes will be permanently deleted. Continue?',
-    iframeGrant: 'Userame: FEBS Password: 123456',
+    iframeGrant: 'Userame: AR502H Password: 123456',
     notEqual: 'Inconsistent values entered twice',
     oldPasswordIncorrect: 'Old password incorrect',
     uploadSuccess: 'Upload Successfully',
@@ -319,7 +319,7 @@ export default {
     invalidURL: 'URL is invalid'
   },
   common: {
-    system: 'Microservice Auth System',
+    system: 'IOT Edge Gateway',
     desc: {
       a: 'Based on Spring Boot 2.2.0 & Spring Cloud Hoxton.RELEASE',
       b: 'Use Spring Cloud OAuth2 Unified Authentication',
@@ -371,15 +371,8 @@ export default {
     goodAfternoon: 'Good afternoon',
     goodEvening: 'Good evening',
     randomMessage: {
-      a: 'Have a coffee break☕',
-      b: 'Do you want to play LOL with your friends?',
-      c: 'How many bugs🐞 did you write today?',
-      d: 'Have you chatted in the group today?',
-      e: 'What delicious food did you eat today?',
-      f: 'Have you smiled today?😊',
-      g: 'Have you solved the problem for others today?',
-      h: 'What are you going to eat?',
-      i: 'Do you want to watch movies on weekends?'
+      a: 'Welcome to AR502H Agent',
+      b: 'Enjoy fantastic IOT world!'
     },
     allProject: 'All Projects',
     noDept: 'No department',

@@ -193,19 +193,24 @@ export default {
     //   console.log('btn clicke')
       this.$get('jsconn').then(async(r) => {
         if (r.data) {
+          console.log(r.data)
           const url = 'ws://localhost:8080/ws?auth=' + r.data.auth + '&dsId=' + r.data.dsId
           const link = new DSLink(url, 'json')
           link.connect()
           const { requester } = link
-          console.log(await requester.subscribe('/sys/dataOutPerSecond', (val) => { console.log(val) }))
-          console.log(
-            (await requester.listOnce('/sys'))
-              .children
-          )
-          console.log(
-            (await requester.invokeOnce('/sys/get_server_log', { lines: 5 }))
-              .result.log
-          )
+          requester.listOnce('/downstream').then(node => {
+            console.log(node)
+          })
+
+        //   console.log(
+        //     (await requester.listOnce('/downstream'))
+        //       .children
+        //   )
+        //   console.log(
+        //     (await requester.listOnce('/data/bacnet'))
+        //       .children
+        //   )
+        //   console.log(await requester.subscribe('/sys/dataOutPerSecond', (val) => { console.log(val) }))
         }
       })
 

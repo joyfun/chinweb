@@ -163,7 +163,6 @@ const request = {
   },
   get(url, params) {
     let _params
-    console.log(params)
     if (Object.is(params, undefined)) {
       _params = ''
     } else {

@@ -24,7 +24,7 @@ export default {
   },
   computed: {
     logo() {
-      return require('@/assets/logo.png')
+      return require('@/assets/huawei.png')
     }
   }
 }

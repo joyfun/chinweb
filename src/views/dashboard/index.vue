@@ -6,6 +6,12 @@
           <div class="user-wrapper">
             <div class="user-header">
               <img alt="avatar" :src="avatar">
+              <!-- <el-button class="filter-item" type="info" plain @click="refreshAuth">
+                验证
+              </el-button>
+              <el-button class="filter-item" type="info" plain @click="readNode">
+                刷新
+              </el-button> -->
             </div>
             <div class="user-info">
               <div class="random-message">
@@ -101,6 +107,7 @@
 // import { parseTime } from '@/utils'
 import countTo from 'vue-count-to'
 import resize from '@/components/Charts/mixins/resize'
+const { DSLink } = require('dslink/js/web')
 
 export default {
   name: 'Dashboard',
@@ -117,6 +124,7 @@ export default {
   mixins: [resize],
   data() {
     return {
+      auth: {},
       server: [{
         id: 1,
         name: 'FEBS-Auth',
@@ -200,6 +208,40 @@ export default {
       ]
       const index = Math.floor((Math.random() * welcomeArr.length))
       return `${time}, ${this.user.username}, ${welcomeArr[index]}`
+    },
+    refreshAuth: function() {
+      if (this.$link && this.$link.status) {
+        this.$link.close()
+      }
+      this.$get('jsconn').then(async(r) => {
+        if (r.data) {
+          this.auth = r.data
+
+          // const url = 'ws://'+window.location.host+'/ws?auth=' + this.auth.auth + '&dsId=' + this.auth.dsId
+          const url = 'ws://localhost:8080/ws?auth=' + this.auth.auth + '&dsId=' + this.auth.dsId
+          const link = new DSLink(url, 'json')
+          this.$link = link
+        }
+      })
+    },
+    readNode: function() {
+      this.$link.connect()
+      const { requester } = this.$link
+      //   console.log(await requester.invokeOnce('/downstream/C-Modbus/add ip connection', {
+      //     name: 'modbus_test',
+      //     'transport type': 'TCP',
+      //     'host': '192.168.1.1',
+      //     port: 502
+      //   }))
+      requester.listOnce('/downstream/C-Modbus').then(node => {
+        console.log(node.children)
+        for (var element of node.children) {
+          console.log(element)
+          if (element.configs.$invokable) {
+            console.log(element.remotePath)
+          }
+        }
+      })
     },
     initIndexData: function() {
       this.$get('api/about').then((r) => {
