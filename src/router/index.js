@@ -119,30 +119,6 @@ router.beforeEach((to, from, next) => {
             'alwaysShow': true,
             'children': [
               {
-                'path': '/system/user',
-                'name': '用户管理',
-                'component': 'febs/system/user/Index',
-                'meta': {
-                  'title': '用户管理',
-                  'icon': '',
-                  'breadcrumb': true
-                },
-                'hidden': false,
-                'alwaysShow': false
-              },
-              {
-                'path': 'febs/system/link',
-                'name': '数据管理',
-                'component': 'febs/system/link/Index',
-                'meta': {
-                  'title': '数据管理',
-                  'icon': '',
-                  'breadcrumb': true
-                },
-                'hidden': false,
-                'alwaysShow': false
-              },
-              {
                 'path': '/system/mqtt',
                 'name': 'MQTT设置',
                 'component': 'febs/system/mqtt/Edit',

@@ -85,6 +85,7 @@ export default {
       name: '设备名称',
       type: '类型',
       host: '地址',
+      address: '地址',
       port: '端口',
       site: '站号',
       dataType: '数值类型',

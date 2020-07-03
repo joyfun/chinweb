@@ -11,9 +11,9 @@
       <el-button class="filter-item" type="info" plain @click="add">
         {{ $t('table.add') }}
       </el-button>
-      <el-button class="filter-item" type="info" plain @click="pointsAdd">
+      <!-- <el-button class="filter-item" type="info" plain @click="pointsAdd">
         {{ $t('table.edit') }}
-      </el-button>
+      </el-button> -->
     </div>
     <inline-edit-table
       ref="edit"

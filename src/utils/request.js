@@ -164,9 +164,14 @@ const request = {
   get(url, params) {
     let _params
     if (Object.is(params, undefined)) {
-      _params = ''
+      _params = '?'
+      if ('?'.indexOf(url) > -1) {
+        _params = '&'
+      }
+      _params += 'rand=' + (new Date()).getTime()
     } else {
       _params = '?'
+      params.rand = (new Date()).getTime()
       for (const key in params) {
         // eslint-disable-next-line no-prototype-builtins
         if (params.hasOwnProperty(key) && params[key] !== null) {

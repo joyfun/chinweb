@@ -9,11 +9,14 @@
   >
     <div class="filter-container">
       <el-form ref="form" :model="point" label-position="right" label-width="165px">
-        <el-form-item :label="$t('table.client.address')" prop="name">
-          <el-input v-model="client.name" :readonly="type === 'add' ? false : 'readonly'" />
+        <el-form-item :label="$t('table.client.name')" prop="name">
+          <el-input v-model="point.name" :readonly="type === 'add' ? false : 'readonly'" />
+        </el-form-item>
+        <el-form-item :label="$t('table.client.address')" prop="address">
+          <el-input v-model="point.address" :readonly="type === 'add' ? false : 'readonly'" />
         </el-form-item>
         <el-form-item :label="$t('table.client.type')" prop="type">
-          <el-select v-model="client.type" value="" placeholder="" style="width:100%" @change="fillPort">
+          <el-select v-model="point.type" value="" placeholder="" style="width:100%" @change="fillPort">
             <el-option
               v-for="item in addressType"
               :key="item"
@@ -23,7 +26,7 @@
           </el-select>
         </el-form-item>
         <el-form-item :label="$t('table.client.dataType')" prop="datatype">
-          <el-select v-model="client.datatype" value="" placeholder="" style="width:100%" @change="fillPort">
+          <el-select v-model="point.datatype" value="" placeholder="" style="width:100%" @change="fillPort">
             <el-option
               v-for="item in ntype"
               :key="item"
@@ -49,7 +52,7 @@
       </el-form-item> -->
       </el-form>
 
-      <el-button class="filter-item" type="info" plain @click="startLink">
+      <el-button class="filter-item" type="info" plain @click="addPoints">
         {{ $t('common.save') }}
       </el-button>
     </div>
@@ -217,7 +220,8 @@ export default {
       //    console.log(await requester.subscribeOnce('/sys/dataOutPerSecond'));
     },
     addPoints(point) {
-      this.deviceInfo.points.push(point)
+      this.deviceInfo.points.push(this.point)
+      this.savePoints()
     },
     savePoints() {
       this.deviceInfo.points = this.plist

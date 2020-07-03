@@ -197,14 +197,7 @@ export default {
       const time = hour < 6 ? this.$t('common.goodMorning') : (hour <= 11 ? this.$t('common.goodMorning') : (hour <= 13 ? this.$t('common.goodAfternoon') : (hour <= 18 ? this.$t('common.goodAfternoon') : this.$t('common.goodEvening'))))
       const welcomeArr = [
         this.$t('common.randomMessage.a'),
-        this.$t('common.randomMessage.b'),
-        this.$t('common.randomMessage.c'),
-        this.$t('common.randomMessage.d'),
-        this.$t('common.randomMessage.e'),
-        this.$t('common.randomMessage.f'),
-        this.$t('common.randomMessage.g'),
-        this.$t('common.randomMessage.h'),
-        this.$t('common.randomMessage.i')
+        this.$t('common.randomMessage.b')
       ]
       const index = Math.floor((Math.random() * welcomeArr.length))
       return `${time}, ${this.user.username}, ${welcomeArr[index]}`
