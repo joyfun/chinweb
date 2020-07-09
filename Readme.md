@@ -1,17 +1,34 @@
-### FEBS Cloud Web
+# Chinwell Web
 
-FEBS Cloud Web是[FEBS Cloud](https://github.com/wuyouzhuguli/FEBS-Cloud)微服务权限系统的前端项目，基于[vue element admin](https://panjiachen.github.io/vue-element-admin-site/zh/)构建。详细介绍参见：[https://www.kancloud.cn/mrbird/spring-cloud/1263679](https://www.kancloud.cn/mrbird/spring-cloud/1263679)
 
-### 系统截图
 
-![1](images/1.png)
+## 功能
 
-![2](images/2.png)
+# 主页 - Dashboard
+    1. 系统启动时间
+    2. 系统运行时长
+    3. 当前 IP 地址
+    4. DataInPerSecond 上行 Topics
+    5. DataOutPerSecond 下行 Topics
+    6. License info 许可信息使用量统计
+    7. 接入设备数据和类型、方式统计数量
 
-![3](images/3.png)
 
-![4](images/4.png)
 
-![5](images/5.png)
+# 北向平台 - Upstream(ROMA 平台设置)
+    - Agent over MQTT
 
-![6](images/6.png)
+
+# 南向接入 - Downstream(link management)
+
+    1. Modbus
+    2. BACnet
+
+# 设备管理 - 管理接入的设备，如：Modbus, BACnet
+    - 
+
+# 更多功能
+    - 系统信息
+    - 用户管理
+    - 备份与恢复
+    - 许可证管理
