@@ -333,7 +333,7 @@ export default {
           s: this.salt
         }).then((r) => {
           const data = r.data
-          this.refreshAuth()
+          // this.refreshAuth()
           this.saveLoginData(data)
           this.$store.commit('account/setUser', {
             'password': null,
