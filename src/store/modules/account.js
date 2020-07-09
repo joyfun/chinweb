@@ -16,10 +16,6 @@ export default {
       db.save('ACCESS_TOKEN', val)
       state.accessToken = val
     },
-    setdsId(state, val) {
-      db.save('DSLINK_ID', val)
-      state.dsId = val
-    },
     setRefreshToken(state, val) {
       db.save('REFRESH_TOKEN', val)
       state.refreshToken = val

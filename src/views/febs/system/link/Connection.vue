@@ -101,7 +101,6 @@
 <script>
 import Vue from 'vue'
 import Pagination from '@/components/Pagination'
-const { DSLink } = require('dslink/js/web')
 
 export default {
   name: 'Settings',
@@ -186,26 +185,6 @@ export default {
         }
       }
       return attrs
-    },
-    refreshAuth: function(cb, path) {
-      if (this.$link && this.$link.status) {
-        this.$link.close()
-      }
-      this.$get('jsconn').then(async(r) => {
-        if (r.data) {
-          this.auth = r.data
-
-          // const url = 'ws://'+window.location.host+'/ws?auth=' + this.auth.auth + '&dsId=' + this.auth.dsId
-          const url = 'ws://localhost:8080/ws?auth=' + this.auth.auth + '&dsId=' + this.auth.dsId
-          const link = new DSLink(url, 'json')
-          this.$link = link
-          this.$link.connect()
-
-          if (cb) {
-            cb(path, this.updateCurr)
-          }
-        }
-      })
     },
     nodeChildArray: function(rnode) {
       var tdata = []

@@ -159,6 +159,10 @@ export default {
       // node.get("$is")==='node'||)
       return false
     },
+    filterNode(value, data) {
+      if (!value) return true
+      return data.label.indexOf(value) !== -1
+    },
     loadRoot: async function() {
       this.deptTree = this.readNode('/downstream/ModbusLink')
     },
@@ -191,33 +195,43 @@ export default {
         console.log(path)
         console.log(rnode)
         node.data = rnode
+        rnode.invokes = linkhelper.getInvoke(rnode)
+        if (!rnode.invokes) {
+          rnode.invokes = []
+        }
         Vue.set(this, 'curNode', rnode)
         // nodeinvoke = this.getInvoke(ndata)
-        Vue.set(this, 'nodeinvoke', linkhelper.getInvoke(rnode))
+        Vue.set(this, 'nodeinvoke', rnode.invokes)
         Vue.set(this, 'nodeattrs', linkhelper.getAttribute(rnode))
 
-        // console.log(rnode.children)
+        console.log(rnode)
         resolve(this.nodeChildArray(rnode))
       }
 
       )
     },
-    initDeptTree() {
-      this.$get('system/dept').then((r) => {
-        this.deptTree = r.data.data.rows
-      })
-    },
-    exportExcel() {
-      this.$download('system/dept/excel', {
-        deptName: this.deptName
-      }, `dept_${new Date().getTime()}.xlsx`)
-    },
-    handleNumChange(val) {
-      this.dept.orderNum = val
-    },
-    filterNode(value, data) {
-      if (!value) return true
-      return data.label.indexOf(value) !== -1
+    renderContent(h, { node, data, store }) {
+      console.log(data)
+      return (
+        <span class='custom-tree-node'>
+          <span>{node.label}</span>
+          <span>
+            <el-dropdown strigger='click' class='filter-item'>
+              <el-button click='prepareInvoke(row)'>
+                { this.$t('table.more') },<i class='el-icon-arrow-down el-icon--right' />
+              </el-button>
+              <el-dropdown-menu slot='dropdown'>
+                {data.invokes.forEach((o, idx) => {
+                  return (<el-dropdown-item
+                    key='o.remotePath'
+                    click='invokeAction(o)'
+                  >   {o.name}</el-dropdown-item>)
+                })}
+
+              </el-dropdown-menu>
+            </el-dropdown>
+          </span>
+        </span>)
     },
     nodeClick(ndata, node, el) {
       console.log(ndata)
@@ -242,35 +256,6 @@ export default {
     editClose() {
       this.dialog.isVisible = false
       this.pointDialog.isVisible = false
-    },
-    deleteDept() {
-      const checked = this.$refs.deptTree.getCheckedKeys()
-      if (checked.length === 0) {
-        this.$message({
-          message: this.$t('tips.noNodeSelected'),
-          type: 'warning'
-        })
-      } else {
-        this.$confirm(this.$t('tips.confirmDeleteNode'), this.$t('common.tips'), {
-          confirmButtonText: this.$t('common.confirm'),
-          cancelButtonText: this.$t('common.cancel'),
-          type: 'warning'
-        }).then(() => {
-          this.dept.deptIds = checked.join(',')
-          this.$delete(`system/dept/${this.dept.deptIds}`).then(() => {
-            this.$message({
-              message: this.$t('tips.deleteSuccess'),
-              type: 'success'
-            })
-            this.reset()
-          })
-        }).catch(() => {
-          this.$refs.deptTree.setCheckedKeys([])
-        })
-      }
-    },
-    search() {
-      this.$refs.deptTree.filter(this.deptName)
     },
     reset() {
       this.initDeptTree()

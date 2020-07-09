@@ -72,8 +72,6 @@ import Vue from 'vue'
 import Pagination from '@/components/Pagination'
 import NodeParam from './Params'
 
-const { DSLink } = require('dslink/js/web')
-
 export default {
   name: 'DriverManage',
   components: { Pagination, NodeParam },
@@ -222,26 +220,6 @@ export default {
       }
       return tdata
     },
-    refreshAuth: function(cb, node, resolve) {
-      if (this.$link && this.$link.status) {
-        this.$link.close()
-      }
-      this.$get('jsconn').then(async(r) => {
-        if (r.data) {
-          this.auth = r.data
-
-          // const url = 'ws://'+window.location.host+'/ws?auth=' + this.auth.auth + '&dsId=' + this.auth.dsId
-          const url = 'ws://localhost:8080/ws?auth=' + this.auth.auth + '&dsId=' + this.auth.dsId
-          const link = new DSLink(url, 'json')
-          Vue.prototype.$link = link
-          this.$link.connect()
-
-          if (cb) {
-            cb(node, resolve)
-          }
-        }
-      })
-    },
     listNode: function(path, cb) {
     //   if (this.auth.auth) {
       const { requester } = this.$link
@@ -302,63 +280,7 @@ export default {
       this.dialog.isVisible = true
       this.dialog.type = 'edit'
     },
-    unlock(row) {
-      this.$get(`auth/client/secret/${row.clientId}`).then((r) => {
-        this.$message({
-          showClose: true,
-          message: this.$t('tips.clientOriginSecret') + r.data.data,
-          duration: 0,
-          type: 'success'
-        })
-      })
-    },
-    batchDelete() {
-      if (!this.selection.length) {
-        this.$message({
-          message: this.$t('tips.noDataSelected'),
-          type: 'warning'
-        })
-        return
-      }
-      this.$confirm(this.$t('tips.confirmDelete'), this.$t('common.tips'), {
-        confirmButtonText: this.$t('common.confirm'),
-        cancelButtonText: this.$t('common.cancel'),
-        type: 'warning'
-      }).then(() => {
-        const clientIds = []
-        this.selection.forEach((c) => {
-          clientIds.push(c.clientId)
-        })
-        this.delete(clientIds)
-      }).catch(() => {
-        this.clearSelections()
-      })
-    },
-    singleDelete(index) {
-      this.$confirm(this.$t('tips.confirmDelete') + index, this.$t('common.tips'), {
-        confirmButtonText: this.$t('common.confirm'),
-        cancelButtonText: this.$t('common.cancel'),
-        type: 'warning'
-      }).then(() => {
-        this.list.splice(index, 1)
-        console.log(this.list)
-        this.save()
-      }).catch(() => {
-        this.clearSelections()
-      })
-    //   this.$refs.table.toggleRowSelection(row, true)
-    //   this.batchDelete()
-    },
-    delete(clientIds) {
-      this.loading = true
-    //   this.$delete(`auth/client`, { clientIds }).then(() => {
-    //     this.$message({
-    //       message: this.$t('tips.deleteSuccess'),
-    //       type: 'success'
-    //     })
-    //     this.search()
-    //   })
-    },
+
     clearSelections() {
       this.$refs.table.clearSelection()
     },
@@ -386,15 +308,6 @@ export default {
     reset() {
       this.queryParams = {}
       this.search()
-    },
-    fetch(params = {}) {
-      this.$get('api/devices', {
-        ...params
-      }).then((r) => {
-        this.list = r.data
-        // console.log(this.list)
-        this.loading = false
-      })
     }
   }
 }

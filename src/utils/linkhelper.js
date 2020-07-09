@@ -22,7 +22,7 @@ const linkhelper = {
         this.auth = r.data
 
         // const url = 'ws://'+window.location.host+'/ws?auth=' + this.auth.auth + '&dsId=' + this.auth.dsId
-        const url = 'ws://localhost:8080/ws?auth=' + this.auth.auth + '&dsId=' + this.auth.dsId
+        const url = 'ws://' + window.location.hostname + ':' + this.auth.port + '/ws?auth=' + this.auth.auth + '&dsId=' + this.auth.dsId
         dsalink = new DSLink(url, 'json')
         dsalink.connect()
         if (cb) {
@@ -59,14 +59,16 @@ const linkhelper = {
   },
   getInvokeAttr(rnode) {
     var ret = []
-    rnode.getConfig('$params').forEach(element => {
-      var matchs = element.type.match(/(^enum\[)(.+)(\])/)
-      if (matchs && matchs.length > 2) {
-        element.type = 'enum'
-        element.enums = matchs[2].split(',')
-      }
-      ret.push(element)
-    })
+    if (rnode.getConfig('$params')) {
+      rnode.getConfig('$params').forEach(element => {
+        var matchs = element.type.match(/(^enum\[)(.+)(\])/)
+        if (matchs && matchs.length > 2) {
+          element.type = 'enum'
+          element.enums = matchs[2].split(',')
+        }
+        ret.push(element)
+      })
+    }
     return ret
   }
 }

@@ -100,8 +100,6 @@
 <script>
 import Vue from 'vue'
 import Pagination from '@/components/Pagination'
-const { DSLink } = require('dslink/js/web')
-
 export default {
   name: 'Settings',
   components: { Pagination },
@@ -187,27 +185,6 @@ export default {
       }
       return attrs
     },
-    refreshAuth: function(cb, path) {
-      if (this.$link && this.$link.status) {
-        this.$link.close()
-      }
-      this.$get('jsconn').then(async(r) => {
-        if (r.data) {
-          this.auth = r.data
-
-          // const url = 'ws://'+window.location.host+'/ws?auth=' + this.auth.auth + '&dsId=' + this.auth.dsId
-          const url = 'ws://localhost:8080/ws?auth=' + this.auth.auth + '&dsId=' + this.auth.dsId
-          const link = new DSLink(url, 'json')
-          link.dsId
-          this.$link = link
-          this.$link.connect()
-          console.log('link reconnected!')
-          if (cb) {
-            cb(path, this.updateCurr)
-          }
-        }
-      })
-    },
     nodeChildArray: function(rnode) {
       var tdata = []
       if (rnode.children) {
@@ -235,18 +212,12 @@ export default {
       console.log(this.nodeattrs)
     },
     listNode: function(path, cb) {
-      if (this.auth.auth) {
-        const { requester } = this.$link
-
-        requester.listOnce(path).then((rnode) => {
-          if (cb) {
-            cb(rnode)
-          }
+      this.$link.requester.listOnce(path).then((rnode) => {
+        if (cb) {
+          cb(rnode)
         }
-        )
-      } else {
-        this.refreshAuth(this.listNode, path)
       }
+      )
     },
     readNode: function(node) {
       const { requester } = this.$link
