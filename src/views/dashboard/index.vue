@@ -106,6 +106,7 @@
 // import echarts from 'echarts'
 // import { parseTime } from '@/utils'
 import countTo from 'vue-count-to'
+import Vue from 'vue'
 import resize from '@/components/Charts/mixins/resize'
 const { DSLink } = require('dslink/js/web')
 
@@ -202,21 +203,6 @@ export default {
       const index = Math.floor((Math.random() * welcomeArr.length))
       return `${time}, ${this.user.username}, ${welcomeArr[index]}`
     },
-    refreshAuth: function() {
-      if (this.$link && this.$link.status) {
-        this.$link.close()
-      }
-      this.$get('jsconn').then(async(r) => {
-        if (r.data) {
-          this.auth = r.data
-
-          // const url = 'ws://'+window.location.host+'/ws?auth=' + this.auth.auth + '&dsId=' + this.auth.dsId
-          const url = 'ws://localhost:8080/ws?auth=' + this.auth.auth + '&dsId=' + this.auth.dsId
-          const link = new DSLink(url, 'json')
-          this.$link = link
-        }
-      })
-    },
     readNode: function() {
       this.$link.connect()
       const { requester } = this.$link
@@ -236,9 +222,36 @@ export default {
         }
       })
     },
+    refreshAuth: function() {
+      if (this.$link && this.$link.status) {
+        this.$link.close()
+      }
+      this.$get('jsconn').then(async(r) => {
+        if (r.data) {
+          this.auth = r.data
+
+          const url = 'ws://' + window.location.hostname + ':' + this.auth.port + '/ws?auth=' + this.auth.auth + '&dsId=' + this.auth.dsId
+          //   const ourl = 'ws://localhost:8080/ws?auth=' + this.auth.auth + '&dsId=' + this.auth.dsId
+          //   console.log(url)
+          //   console.log(ourl)
+          const link = new DSLink(url, 'json')
+          link.onDisConnect((data) => {
+            console.log('link disconnected')
+            console.log(data)
+          })
+          Vue.prototype.$link = link
+          this.$link.connect()
+        }
+      })
+    },
     initIndexData: function() {
       this.$get('api/about').then((r) => {
-        console.log(r.data)
+        if (!this.$link) {
+          console.log(r.data)
+        } else {
+          console.log('link auth refresh')
+          this.refreshAuth()
+        }
         // const data = r.data.data
         // this.todayIp = data.todayIp
         // this.totalVisit = data.totalVisitCount

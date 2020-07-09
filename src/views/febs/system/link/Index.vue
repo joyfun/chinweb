@@ -4,7 +4,7 @@
       <el-col :xs="24" :sm="12">
         <div class="app-container">
           <div class="filter-container">
-            <el-input v-model="deptName" :placeholder="$t('table.dept.deptName')" class="filter-item search-item" />
+            <!-- <el-input v-model="deptName" :placeholder="$t('table.dept.deptName')" class="filter-item search-item" />
             <el-button class="filter-item" type="primary" plain @click="readNode">
               {{ $t('table.search') }}
             </el-button>
@@ -14,11 +14,11 @@
             <el-dropdown v-has-any-permission="['dept:add','dept:delete','dept:export']" trigger="click" class="filter-item">
               <el-button>
                 {{ $t('table.more') }}<i class="el-icon-arrow-down el-icon--right" />
-              </el-button>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item v-for="o in nodeinvoke" :key="o">{{ o.name }}</el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
+              </el-button> -->
+            <!-- <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item v-for="o in nodeinvoke" :key="o.remotePath" @click="invokeAction">{{ o.name }} </el-dropdown-item>
+            </el-dropdown-menu>
+            </el-dropdown> -->
           </div>
           <el-tree
             ref="deptTree"
@@ -37,36 +37,31 @@
       <el-col :xs="24" :sm="12">
         <el-card class="box-card">
           <div slot="header" class="clearfix">
-            <span>{{ dept.deptId === '' ? this.$t('common.add') : this.$t('common.edit') }}</span>
+            <span>{{ dept.deptId === '' ? this.$t('common.action') : this.$t('common.edit') }}</span>
           </div>
           <div>
-            <!-- <el-row>{{ curNode }}</el-row> -->
-            <el-row>{{ nodeinvoke }}</el-row>
+            <!-- <div v-for="item in nodeattrs" :key="item.remotePath">
+              {{ item.remotePath }}
+            </div> -->
+            <el-button v-for="item in nodeinvoke" :key="item.remotePath" class="filter-item" type="primary" plain @click="invokeAction(item)">
+              {{ item.name }}
+            </el-button>
 
-            <el-form ref="form" :model="dept" :rules="rules" label-position="right" label-width="100px">
-              <el-form-item :label="$t('table.dept.parentId')" prop="parentId">
-                <treeselect
-                  v-model="dept.parentId"
-                  :multiple="false"
-                  :options="deptTree"
-                  :clear-value-text="$t('common.clear')"
-                  placeholder=" "
-                  style="width:100%"
-                />
-              </el-form-item>
-              <el-form-item :label="$t('table.dept.deptName')" prop="deptName">
-                <el-input v-model="dept.deptName" />
-              </el-form-item>
-              <el-form-item :label="$t('table.dept.orderNum')" prop="orderNum">
-                <el-input-number v-model="dept.orderNum" :min="0" :max="100" @change="handleNumChange" />
-              </el-form-item>
-            </el-form>
+            <node-param
+              ref="edit"
+              :dialog-visible="dialog.isVisible"
+              :title="dialog.title"
+              :type="dialog.type"
+              :remote-node="curNode"
+              :invoke-attr="invokeAttr"
+              @close="editClose"
+            />
           </div>
         </el-card>
         <el-card class="box-card" style="margin-top: -2rem;">
           <el-row>
             <el-col :span="24" style="text-align: right">
-              <el-button type="primary" plain :loading="buttonLoading" @click="submit">{{ dept.deptId === '' ? this.$t('common.add') : this.$t('common.edit') }}</el-button>
+              <el-button type="primary" plain :loading="buttonLoading" @click="submit">{{ dept.deptId === '' ? this.$t('common.action') : this.$t('common.edit') }}</el-button>
             </el-col>
           </el-row>
         </el-card>
@@ -76,13 +71,14 @@
 </template>
 <script>
 import Vue from 'vue'
-import Treeselect from '@riophae/vue-treeselect'
-import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-const { DSLink } = require('dslink/js/web')
+import NodeParam from './Params'
+import linkhelper from '@/utils/linkhelper'
 
+// import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 export default {
   name: 'LinkManager',
-  components: { Treeselect },
+  components: { NodeParam },
   filters: {
 
   },
@@ -90,6 +86,14 @@ export default {
     return {
       auth: {},
       curNode: {},
+      nodeinvoke: [],
+      nodeattrs: [],
+      invokeAttr: [],
+      dialog: {
+        isVisible: false,
+        title: '',
+        type: ''
+      },
       deptName: '',
       buttonLoading: false,
       deptTree: [],
@@ -109,12 +113,13 @@ export default {
     }
   },
   computed: {
-    nodeinvoke: function() {
-      console.log('##### computed')
-      return this.getInvoke(this.curNode)
-    }
+    // nodeinvoke: function() {
+    //   console.log('##### computed')
+    //   return this.getInvoke(this.curNode)
+    // }
   },
   mounted() {
+    // request.getDslink()
     // this.refreshAuth()
   //  this.initDeptTree()
   },
@@ -127,50 +132,35 @@ export default {
         orderNum: 0
       }
     },
-    getInvoke(node) {
-      var ivks = []
-      if (node) {
-        console.log(node.children)
-        if (node.children) {
-          console.log(node.children.size)
-          console.log(typeof (node.children))
-          for (var element of node.children) {
-            console.log(element[0])
-            if (element[1].get('$invokable')) {
-              console.log('######')
-              ivks.push(element[1])
+    invokeAction(data, val) {
+    //   console.log(data.configs)
+
+      this.$link.requester.listOnce(data.remotePath).then(rnode => {
+        console.log(rnode)
+        this.curNode = rnode
+        if (rnode.getConfig('$params')) {
+          this.invokeAttr = linkhelper.getInvokeAttr(rnode)
+          this.add()
+        } else {
+          this.$link.requester.invokeOnce(rnode.remotePath, {}).then(resp => {
+            if (resp.error) {
+              this.$message({
+                message: resp.error,
+                type: 'warning'
+              })
+            } else {
+              this.$emit('close')
             }
-          }
+          })
         }
-      }
-      return ivks
+      })
     },
     showNode(node) {
       // node.get("$is")==='node'||)
       return false
     },
-    refreshAuth: function(cb, node, resolve) {
-      if (this.$link && this.$link.status) {
-        this.$link.close()
-      }
-      this.$get('jsconn').then(async(r) => {
-        if (r.data) {
-          this.auth = r.data
-
-          // const url = 'ws://'+window.location.host+'/ws?auth=' + this.auth.auth + '&dsId=' + this.auth.dsId
-          const url = 'ws://localhost:8080/ws?auth=' + this.auth.auth + '&dsId=' + this.auth.dsId
-          const link = new DSLink(url, 'json')
-          this.$link = link
-          this.$link.connect()
-
-          if (cb) {
-            cb(node, resolve)
-          }
-        }
-      })
-    },
     loadRoot: async function() {
-      this.deptTree = this.readNode('/downstream')
+      this.deptTree = this.readNode('/downstream/ModbusLink')
     },
     nodeChildArray: function(rnode) {
       var tdata = []
@@ -180,7 +170,7 @@ export default {
             continue
           }
           if (element[1].get('$is') === 'node' || element[1].get('$is') === 'static' || element[1].get('$is') === 'dsa/link') {
-            if (element[1].get('$type') || element[1].get('$invokable') || element[1].get('$hidden')) {
+            if (element[1].get('$invokable') || element[1].get('$hidden')) {
               //   console.log(element[1])
             } else {
               tdata.push(element[1])
@@ -191,24 +181,26 @@ export default {
       return tdata
     },
     readNode: function(node, resolve) {
-      if (this.auth.auth) {
-        const { requester } = this.$link
-        var path = '/'
+      const { requester } = this.$link
+      var path = '/downstream'
 
-        if (node && node.data && node.data.remotePath) {
-          path = node.data.remotePath
-        }
-        requester.listOnce(path).then((rnode) => {
-          console.log(path)
-          node.data = rnode
-          console.log(rnode.children)
-          resolve(this.nodeChildArray(rnode))
-        }
-
-        )
-      } else {
-        this.refreshAuth(this.readNode, node, resolve)
+      if (node && node.data && node.data.remotePath) {
+        path = node.data.remotePath
       }
+      requester.listOnce(path).then((rnode) => {
+        console.log(path)
+        console.log(rnode)
+        node.data = rnode
+        Vue.set(this, 'curNode', rnode)
+        // nodeinvoke = this.getInvoke(ndata)
+        Vue.set(this, 'nodeinvoke', linkhelper.getInvoke(rnode))
+        Vue.set(this, 'nodeattrs', linkhelper.getAttribute(rnode))
+
+        // console.log(rnode.children)
+        resolve(this.nodeChildArray(rnode))
+      }
+
+      )
     },
     initDeptTree() {
       this.$get('system/dept').then((r) => {
@@ -228,12 +220,12 @@ export default {
       return data.label.indexOf(value) !== -1
     },
     nodeClick(ndata, node, el) {
-    //   console.log(data)
-    //   console.log(node)
-    //   Vue.set(this.cur)
-    //   console.log(this)
+      console.log(ndata)
+      //   Vue.set(this.cur)
+      //   console.log(this)
       Vue.set(this, 'curNode', ndata)
-      // this.nodeinvoke = this.getInvoke(data)
+      this.nodeinvoke = linkhelper.getInvoke(ndata)
+      this.nodeattrs = linkhelper.getAttribute(ndata)
       //   console.log(this.curNode)
       //   console.log(this.nodeinvoke)
       // console.log(data.getSimpleMap())
@@ -242,11 +234,14 @@ export default {
       }
     },
     add() {
-      this.resetForm()
-      this.$message({
-        message: this.$t('tips.createTips'),
-        type: 'info'
-      })
+      Vue.set(this.dialog, 'isVisible', true)
+      this.dialog.title = this.$t('common.action')
+
+      this.dialog.type = 'add'
+    },
+    editClose() {
+      this.dialog.isVisible = false
+      this.pointDialog.isVisible = false
     },
     deleteDept() {
       const checked = this.$refs.deptTree.getCheckedKeys()
@@ -312,9 +307,9 @@ export default {
       })
     },
     resetForm() {
-      this.$refs.form.clearValidate()
-      this.$refs.form.resetFields()
-      this.dept = this.initDept()
+    //   this.$refs.form.clearValidate()
+    //   this.$refs.form.resetFields()
+    //   this.dept = this.initDept()
     }
   }
 }

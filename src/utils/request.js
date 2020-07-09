@@ -6,6 +6,8 @@ import router from '@/router'
 import { getToken, getRefreshToken, getExpireTime } from '@/utils/auth'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
+import Vue from 'vue'
+const { DSLink } = require('dslink/js/web')
 
 // 请求超时时间，10s
 const requestTimeOut = 10 * 1000
@@ -160,6 +162,28 @@ const request = {
         'Content-Type': 'application/x-www-form-urlencoded'
       }
     })
+  },
+  getDslink(flag) {
+    console.log('##### call getDsLink')
+    if (flag || !Vue.prototype.$link) {
+      this.get('jsconn').then(async(r) => {
+        if (r.data) {
+          this.auth = r.data
+
+          const url = 'ws://' + window.location.hostname + ':' + this.auth.port + '/ws?auth=' + this.auth.auth + '&dsId=' + this.auth.dsId
+          //   const ourl = 'ws://localhost:8080/ws?auth=' + this.auth.auth + '&dsId=' + this.auth.dsId
+          console.log(url)
+          //   console.log(ourl)
+          var link = new DSLink(url, 'json')
+          link.onDisConnect((data) => {
+            console.log('link disconnected')
+            console.log(data)
+          })
+          link.connect()
+          Vue.prototype.$link = link
+        }
+      })
+    }
   },
   get(url, params) {
     let _params

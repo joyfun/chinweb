@@ -261,6 +261,35 @@ export default {
     closeOthers: '关闭其它',
     closeAll: '关闭所有'
   },
+  links: {
+    name: '名称',
+    'transport type': '接口类型',
+    host: '设备地址',
+    port: '端口号',
+    Timeout: '超时时间(ms)',
+    retries: '重试次数',
+    'max read bit count': '最大读取位数',
+    'max read register count': '最多读取寄存器',
+    'max write register count': '最多写入寄存器',
+    'discard data delay': '超时丢弃(ms)',
+    'use multiple write commands': '多重写入方式',
+    'comm port id (manual)': '串口地址',
+    'slave id': 'slave id',
+    'baud rate': '波特率',
+    'data bits': '数据位',
+    'stop bits': '停止位',
+    'parity': '校验位',
+    'type': '类型',
+    'offset': '偏移地址',
+    'number of registers': '寄存器数量',
+    'data type': '数据类型',
+    'bit': '位',
+    'value': '值',
+    'scaling': '倍率',
+    'scaling offset': '倍率偏移量',
+    'writable': '是否可写'
+
+  },
   settings: {
     title: '系统布局配置',
     theme: '主题色',
@@ -337,6 +366,7 @@ export default {
   },
   common: {
     system: '智能物联网网关',
+    value: '值',
     desc: {
       a: '基于Spring Boot 2.2.0 & Spring Cloud Hoxton.RELEASE',
       b: '使用Spring Cloud OAuth2统一认证',
@@ -349,6 +379,8 @@ export default {
       i: '数据权限，社交登录，开箱即用...'
     },
     view: '查看',
+    name: '名称',
+    path: '路径',
     tips: '提示',
     clear: '清除',
     confirm: '确定',
@@ -356,6 +388,7 @@ export default {
     cancel: '取消',
     add: '新增',
     edit: '修改',
+    action: '执行',
     yes: '是',
     no: '否',
     open: '开启',

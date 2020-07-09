@@ -6,6 +6,7 @@ import db from '@/utils/localstorage'
 import store from '@/store/index'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
+import request from '../utils/request'
 
 Vue.use(Router)
 
@@ -118,6 +119,54 @@ router.beforeEach((to, from, next) => {
             'hidden': false,
             'alwaysShow': true,
             'children': [
+              {
+                'path': '/system/user',
+                'name': '用户管理',
+                'component': 'febs/system/user/Index',
+                'meta': {
+                  'title': '用户管理',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
+              },
+              {
+                'path': '/system/settings',
+                'name': '系统管理',
+                'component': 'febs/system/settings/Index',
+                'meta': {
+                  'title': '系统管理',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
+              },
+              {
+                'path': '/system/driver',
+                'name': '连接管理',
+                'component': 'febs/system/link/Drivers',
+                'meta': {
+                  'title': '连接管理',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
+              },
+              {
+                'path': '/system/link',
+                'name': '数据管理',
+                'component': 'febs/system/link/Index',
+                'meta': {
+                  'title': '数据管理',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
+              },
               {
                 'path': '/system/mqtt',
                 'name': 'MQTT设置',
@@ -440,7 +489,7 @@ router.beforeEach((to, from, next) => {
             'alwaysShow': false
           }
         ]
-        console.log(asyncRouter)
+        request.getDslink(1)
         store.commit('account/setRoutes', asyncRouter)
         save('USER_ROUTER', asyncRouter)
         go(to, next)

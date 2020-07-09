@@ -156,7 +156,6 @@ import db from '@/utils/localstorage'
 import { randomNum } from '@/utils'
 import axios from 'axios'
 import { socialLoginUrl } from '@/settings'
-
 export default {
   name: 'Login',
   components: { LangSelect },
@@ -334,6 +333,7 @@ export default {
           s: this.salt
         }).then((r) => {
           const data = r.data
+          this.refreshAuth()
           this.saveLoginData(data)
           this.$store.commit('account/setUser', {
             'password': null,
