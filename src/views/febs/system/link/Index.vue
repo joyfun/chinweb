@@ -1,7 +1,7 @@
 <template>
   <div class="dept">
     <el-row :gutter="10">
-      <el-col :xs="24" :sm="12">
+      <el-col :xs="24" :sm="18">
         <div class="app-container">
           <div class="filter-container">
             <!-- <el-input v-model="deptName" :placeholder="$t('table.dept.deptName')" class="filter-item search-item" />
@@ -11,14 +11,15 @@
             <el-button class="filter-item" type="warning" plain @click="reset">
               {{ $t('table.reset') }}
             </el-button>
+            -->
             <el-dropdown v-has-any-permission="['dept:add','dept:delete','dept:export']" trigger="click" class="filter-item">
               <el-button>
                 {{ $t('table.more') }}<i class="el-icon-arrow-down el-icon--right" />
-              </el-button> -->
-            <!-- <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item v-for="o in nodeinvoke" :key="o.remotePath" @click="invokeAction">{{ o.name }} </el-dropdown-item>
-            </el-dropdown-menu>
-            </el-dropdown> -->
+              </el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item v-for="o in nodeinvoke" :key="o.remotePath" @click.native="invokeAction(o)">{{ o.name }} </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
           </div>
           <el-tree
             ref="deptTree"
@@ -31,40 +32,29 @@
             highlight-current
             :filter-node-method="filterNode"
             @node-click="nodeClick"
-          />
+          ><span slot-scope="{ node, data }" class="custom-tree-node">
+            <span>{{ node.label }}</span>
+            <span style="position:absolute;right:0;">
+              <i class="el-icon-info table-operation" style="color: #87d068;" @click="showProps(data)" />
+            </span></span></el-tree>
         </div>
-      </el-col>
-      <el-col :xs="24" :sm="12">
-        <el-card class="box-card">
-          <div slot="header" class="clearfix">
-            <span>{{ dept.deptId === '' ? this.$t('common.action') : this.$t('common.edit') }}</span>
-          </div>
-          <div>
-            <!-- <div v-for="item in nodeattrs" :key="item.remotePath">
-              {{ item.remotePath }}
-            </div> -->
-            <el-button v-for="item in nodeinvoke" :key="item.remotePath" class="filter-item" type="primary" plain @click="invokeAction(item)">
-              {{ item.name }}
-            </el-button>
-
-            <node-param
-              ref="edit"
-              :dialog-visible="dialog.isVisible"
-              :title="dialog.title"
-              :type="dialog.type"
-              :remote-node="curNode"
-              :invoke-attr="invokeAttr"
-              @close="editClose"
-            />
-          </div>
-        </el-card>
-        <el-card class="box-card" style="margin-top: -2rem;">
-          <el-row>
-            <el-col :span="24" style="text-align: right">
-              <el-button type="primary" plain :loading="buttonLoading" @click="submit">{{ dept.deptId === '' ? this.$t('common.action') : this.$t('common.edit') }}</el-button>
-            </el-col>
-          </el-row>
-        </el-card>
+        <node-param
+          ref="edit"
+          :dialog-visible="dialog.isVisible"
+          :title="dialog.title"
+          :type="dialog.type"
+          :remote-node="curNode"
+          :invoke-attr="invokeAttr"
+          @close="editClose"
+        />
+        <node-properties
+          ref="props"
+          :dialog-visible="propsDialog.isVisible"
+          :title="dialog.title"
+          :type="dialog.type"
+          :path="curNode.remotePath"
+          @close="editClose"
+        />
       </el-col>
     </el-row>
   </div>
@@ -72,13 +62,15 @@
 <script>
 import Vue from 'vue'
 import NodeParam from './Params'
+import NodeProperties from './Props'
+
 import linkhelper from '@/utils/linkhelper'
 
 // import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 export default {
   name: 'LinkManager',
-  components: { NodeParam },
+  components: { NodeParam, NodeProperties },
   filters: {
 
   },
@@ -90,6 +82,11 @@ export default {
       nodeattrs: [],
       invokeAttr: [],
       dialog: {
+        isVisible: false,
+        title: '',
+        type: ''
+      },
+      propsDialog: {
         isVisible: false,
         title: '',
         type: ''
@@ -133,8 +130,6 @@ export default {
       }
     },
     invokeAction(data, val) {
-    //   console.log(data.configs)
-
       this.$link.requester.listOnce(data.remotePath).then(rnode => {
         console.log(rnode)
         this.curNode = rnode
@@ -177,6 +172,11 @@ export default {
             if (element[1].get('$invokable') || element[1].get('$hidden')) {
               //   console.log(element[1])
             } else {
+              this.$link.requester.listOnce(element[1].remotePath).then(rnode => {
+                rnode.invokes = linkhelper.getInvoke(rnode)
+                console.log('#################')
+                console.log(rnode)
+              })
               tdata.push(element[1])
             }
           }
@@ -238,7 +238,9 @@ export default {
       //   Vue.set(this.cur)
       //   console.log(this)
       Vue.set(this, 'curNode', ndata)
-      this.nodeinvoke = linkhelper.getInvoke(ndata)
+      ndata.invokes = linkhelper.getInvoke(ndata)
+      this.nodeinvoke = ndata.invokes
+
       this.nodeattrs = linkhelper.getAttribute(ndata)
       //   console.log(this.curNode)
       //   console.log(this.nodeinvoke)
@@ -253,9 +255,14 @@ export default {
 
       this.dialog.type = 'add'
     },
+    showProps(rnode) {
+      Vue.set(this.propsDialog, 'isVisible', true)
+      this.propsDialog.title = this.$t('common.action')
+      this.propsDialog.type = 'view'
+    },
     editClose() {
       this.dialog.isVisible = false
-      this.pointDialog.isVisible = false
+      this.propsDialog.isVisible = false
     },
     reset() {
       this.initDeptTree()

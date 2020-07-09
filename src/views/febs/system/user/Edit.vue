@@ -151,8 +151,8 @@ export default {
     }
   },
   mounted() {
-    this.initDept()
-    this.initRoles()
+    // this.initDept()
+    // this.initRoles()
     window.onresize = () => {
       return (() => {
         this.width = this.initWidth()
@@ -201,15 +201,15 @@ export default {
       this.$refs.deptTree.setCheckedKeys([])
     },
     initRoles() {
-      this.$get('system/role/options').then((r) => {
-        this.roles = r.data.data
-      }).catch((error) => {
-        console.error(error)
-        this.$message({
-          message: this.$t('tips.getDataFail'),
-          type: 'error'
-        })
-      })
+    //   this.$get('system/role/options').then((r) => {
+    //     this.roles = r.data.data
+    //   }).catch((error) => {
+    //     console.error(error)
+    //     this.$message({
+    //       message: this.$t('tips.getDataFail'),
+    //       type: 'error'
+    //     })
+    //   })
     },
     setUser(val) {
       this.user = { ...val }

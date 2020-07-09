@@ -164,7 +164,7 @@ export default {
     }
   },
   mounted() {
-    this.fetch()
+    // this.fetch()
   },
   methods: {
     transSex(sex) {
@@ -319,21 +319,21 @@ export default {
       })
     },
     fetch(params = {}) {
-      params.pageSize = this.pagination.size
-      params.pageNum = this.pagination.num
-      if (this.queryParams.timeRange) {
-        params.createTimeFrom = this.queryParams.timeRange[0]
-        params.createTimeTo = this.queryParams.timeRange[1]
-      }
-      this.loading = true
-      this.$get('system/user', {
-        ...params
-      }).then((r) => {
-        const data = r.data.data
-        this.total = data.total
-        this.list = data.rows
-        this.loading = false
-      })
+    //   params.pageSize = this.pagination.size
+    //   params.pageNum = this.pagination.num
+    //   if (this.queryParams.timeRange) {
+    //     params.createTimeFrom = this.queryParams.timeRange[0]
+    //     params.createTimeTo = this.queryParams.timeRange[1]
+    //   }
+    //   this.loading = true
+    //   this.$get('system/user', {
+    //     ...params
+    //   }).then((r) => {
+    //     const data = r.data.data
+    //     this.total = data.total
+    //     this.list = data.rows
+    //     this.loading = false
+    //   })
     },
     sortChange(val) {
       this.sort.field = val.prop

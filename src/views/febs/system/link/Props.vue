@@ -1,95 +1,44 @@
 <template>
-  <div class="app-container">
-    <div class="filter-container">
-      <el-input v-model="queryParams.username" :placeholder="$t('common.name')" class="filter-item search-item" />
-      <el-button class="filter-item" type="primary" plain @click="search">
-        {{ $t('table.search') }}
-      </el-button>
-      <el-dropdown v-has-any-permission="['user:add','user:delete','user:reset','user:export']" trigger="click" class="filter-item">
-        <el-button>
-          {{ $t('table.more') }}<i class="el-icon-arrow-down el-icon--right" />
-        </el-button>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item v-for="o in nodeinvoke" :key="o.remotePath">{{ o.name }}</el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
-    </div>
-    <el-table
-      ref="table"
-      :key="tableKey"
-      v-loading="loading"
-      :data="nodeattrs"
-      border
-      fit
-      style="width: 100%;"
-      @selection-change="onSelectChange"
-      @sort-change="sortChange"
-    >
-      <el-table-column type="selection" align="center" width="40px" />
-      <el-table-column :label="$t('common.name')" prop="name" :show-overflow-tooltip="true" align="center" min-width="120px">
-        <template slot-scope="scope">
-          <span>{{ scope.row.name }}</span>
-        </template>
-      </el-table-column>
-      <!-- <el-table-column
-        :label="$t('table.user.sex')"
-        :filters="[{ text: $t('common.sex.male'), value: '0' }, { text: $t('common.sex.female'), value: '1' }, { text: $t('common.sex.secret'), value: '2' }]"
-        :filter-method="filterSex"
-        class-name="status-col"
-      >
-        <template slot-scope="{row}">
-          <el-tag :type="row.sex | sexFilter">
-            {{ transSex(row.sex) }}
-          </el-tag>
-        </template>
-      </el-table-column> -->
-      <el-table-column :label="$t('common.path')" :show-overflow-tooltip="true" align="center" min-width="150px">
-        <template slot-scope="scope">
-          <span>{{ scope.row.remotePath }}</span>
-        </template>
-      </el-table-column>
-      <!-- <el-table-column :label="$t('table.user.dept')" align="center" min-width="100px">
-        <template slot-scope="scope">
-          <span>{{ scope.row.deptName }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        :label="$t('table.user.status')"
-        :filters="[{ text: $t('common.status.valid'), value: '1' }, { text: $t('common.status.invalid'), value: '0' }]"
-        :filter-method="filterStatus"
-        class-name="status-col"
-      >
-        <template slot-scope="{row}">
-          <el-tag :type="row.status | statusFilter">
-            {{ row.status === '1' ? $t('common.status.valid') : $t('common.status.invalid') }}
-          </el-tag>
-        </template>
-      </el-table-column> -->
-      <el-table-column :label="$t('common.value')" prop="nodevalue" align="center" min-width="240px" sortable="custom">
-        <template slot-scope="scope">
-          <span>{{ scope.row.nodevalue }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column :label="$t('table.operation')" align="center" min-width="150px" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <i v-hasPermission="['user:view']" class="el-icon-view table-operation" style="color: #87d068;" @click="view(scope.row,scope.$index)" />
-        </template>
-      </el-table-column>
-    </el-table>
+  <el-dialog
+    :title="title"
+    width="800px"
+    top="50px"
+    :close-on-click-modal="false"
+    :close-on-press-escape="false"
+    :visible.sync="isVisible"
+  >    <el-table
+         ref="table"
+         :key="tableKey"
+         v-loading="loading"
+         :data="nodeattrs"
+         border
+         fit
+         style="width: 100%;"
+       >
+         <el-table-column :label="$t('common.name')" prop="name" :show-overflow-tooltip="true" align="center" min-width="120px">
+           <template slot-scope="scope">
+             <span>{{ scope.row.name }}</span>
+           </template>
+         </el-table-column>
+         <el-table-column :label="$t('common.path')" :show-overflow-tooltip="true" align="center" min-width="150px">
+           <template slot-scope="scope">
+             <span>{{ scope.row.remotePath }}</span>
+           </template>
+         </el-table-column>
+
+         <el-table-column :label="$t('common.value')" prop="nodevalue" align="center" min-width="240px" sortable="custom">
+           <template slot-scope="scope">
+             <span>{{ scope.row.nodevalue }}</span>
+           </template>
+         </el-table-column>
+         <el-table-column :label="$t('table.operation')" align="center" min-width="150px" class-name="small-padding fixed-width">
+           <template slot-scope="scope">
+             <i class="el-icon-view table-operation" style="color: #87d068;" @click="view(scope.row,scope.$index)" />
+           </template>
+         </el-table-column>
+       </el-table>
     <pagination v-show="total>0" :total="total" :page.sync="pagination.num" :limit.sync="pagination.size" @pagination="search" />
-    <!-- <user-edit
-      ref="edit"
-      :dialog-visible="dialog.isVisible"
-      :title="dialog.title"
-      @success="editSuccess"
-      @close="editClose"
-    />
-   <user-view
-      ref="view"
-      :dialog-visible="userViewVisible"
-      @close="viewClose"
-    /> -->
-  </div>
+  </el-dialog>
 </template>
 
 <script>
@@ -98,7 +47,7 @@ import Pagination from '@/components/Pagination'
 import linkhelper from '@/utils/linkhelper'
 
 export default {
-  name: 'Settings',
+  name: 'NodeProperties',
   components: { Pagination },
   filters: {
     sexFilter(status) {
@@ -115,6 +64,24 @@ export default {
         1: 'success'
       }
       return map[status]
+    }
+  },
+  props: {
+    dialogVisible: {
+      type: Boolean,
+      default: false
+    },
+    title: {
+      type: String,
+      default: ''
+    },
+    type: {
+      type: String,
+      default: ''
+    },
+    path: {
+      type: String,
+      default: '/'
     }
   },
   data() {
@@ -142,13 +109,25 @@ export default {
       }
     }
   },
+
   computed: {
-    currentUser() {
-      return this.$store.state.account.user
+    isVisible: {
+      get() {
+        return this.dialogVisible
+      },
+      set() {
+        this.close()
+        this.reset()
+      }
     }
   },
-  mounted() {
-    this.listNode('/sys', this.updateCurr)
+  watch: {
+    isVisible(val) {
+      console.log(this.path)
+      if (val) {
+        this.listNode(this.path, this.updateCurr)
+      }
+    }
   },
   methods: {
     nodeChildArray: function(rnode) {
@@ -171,6 +150,7 @@ export default {
     },
     updateCurr: function(rnode) {
       console.log('updateCurr')
+      console.log(rnode)
       Vue.set(this, 'curNode', rnode)
       Vue.set(this, 'nodeinvoke', linkhelper.getInvoke(rnode))
       console.log(this.nodeattrs)
@@ -306,6 +286,9 @@ export default {
         this.dialog.title = this.$t('common.edit')
         this.dialog.isVisible = true
       })
+    },
+    close() {
+      this.$emit('close')
     },
     sortChange(val) {
       this.sort.field = val.prop

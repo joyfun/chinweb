@@ -49,7 +49,7 @@ const linkhelper = {
     if (node) {
       if (node.children) {
         for (var element of node.children) {
-          if (element[1].getConfig('$type') === 'string' || element[1].getConfig('$type') === 'number') {
+          if (element[1].getConfig('$type') === 'bool' || element[1].getConfig('$type') === 'string' || element[1].getConfig('$type') === 'number') {
             attrs.push(element[1])
           }
         }

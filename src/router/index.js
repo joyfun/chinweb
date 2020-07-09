@@ -166,31 +166,31 @@ router.beforeEach((to, from, next) => {
                 },
                 'hidden': false,
                 'alwaysShow': false
-              },
-              {
-                'path': '/system/mqtt',
-                'name': 'MQTT设置',
-                'component': 'febs/system/mqtt/Edit',
-                'meta': {
-                  'title': 'MQTT设置',
-                  'icon': '',
-                  'breadcrumb': true
-                },
-                'hidden': false,
-                'alwaysShow': false
-              },
-              {
-                'path': '/client',
-                'name': '设备管理',
-                'component': 'febs/system/client/Index',
-                'meta': {
-                  'title': '设备管理',
-                  'icon': '',
-                  'breadcrumb': true
-                },
-                'hidden': false,
-                'alwaysShow': false
               }
+            //   {
+            //     'path': '/system/mqtt',
+            //     'name': 'MQTT设置',
+            //     'component': 'febs/system/mqtt/Edit',
+            //     'meta': {
+            //       'title': 'MQTT设置',
+            //       'icon': '',
+            //       'breadcrumb': true
+            //     },
+            //     'hidden': false,
+            //     'alwaysShow': false
+            //   },
+            //   {
+            //     'path': '/client',
+            //     'name': '设备管理',
+            //     'component': 'febs/system/client/Index',
+            //     'meta': {
+            //       'title': '设备管理',
+            //       'icon': '',
+            //       'breadcrumb': true
+            //     },
+            //     'hidden': false,
+            //     'alwaysShow': false
+            //   }
             ]
           },
           //   {
