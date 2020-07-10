@@ -17,7 +17,7 @@
                 {{ $t('table.more') }}<i class="el-icon-arrow-down el-icon--right" />
               </el-button>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item v-for="o in nodeinvoke" :key="o.remotePath" @click.native="invokeAction(o)">{{ o.name }} </el-dropdown-item>
+                <el-dropdown-item v-for="o in nodeinvoke" :key="o.remotePath" @click.native="invokeAction(o)">{{ $t('links[\''+o.name+'\']') }} </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </div>
@@ -145,6 +145,7 @@ export default {
                 type: 'warning'
               })
             } else {
+              this.nodeUpdate(data.remotePath)
               this.$emit('close')
             }
           })

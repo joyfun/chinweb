@@ -1,11 +1,11 @@
 <template>
-  <nodes-table rpath="/downstream" />
+  <nodes-table rpath="/downstream/C-MQTT" />
 </template>
 <script>
 import NodesTable from './NodesTable'
 
 export default {
-  name: 'DriverManage',
+  name: 'MqttManage',
   components: { NodesTable }
 
 }

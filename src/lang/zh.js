@@ -292,6 +292,16 @@ export default {
     'client id': 'ClientID',
     user: '用户',
     password: '密码',
+    'add ip connection': '添加TCP设备',
+    'add serial connection': '添加485设备',
+    'edit': '编辑',
+    'restart': '重启',
+    'stop': '停止',
+    'remove': '删除',
+    'set': '设置',
+    'read': '读取',
+    'add point': '添加数据点',
+    'Add Connection': '添加连接',
     keepAlive: '超时时间',
     'writable': '是否可写'
 

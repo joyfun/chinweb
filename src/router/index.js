@@ -156,6 +156,18 @@ router.beforeEach((to, from, next) => {
                 'alwaysShow': false
               },
               {
+                'path': '/system/mqtt',
+                'name': '北向设置',
+                'component': 'febs/system/link/Mqtt',
+                'meta': {
+                  'title': '北向设置',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
+              },
+              {
                 'path': '/system/link',
                 'name': '数据管理',
                 'component': 'febs/system/link/Index',
