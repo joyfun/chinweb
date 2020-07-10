@@ -174,8 +174,10 @@ export default {
     },
     submitForm() {
       const { requester } = this.$link
+      console.log(this.remoteNode)
       console.log(this.param)
       requester.invokeOnce(this.remoteNode.remotePath, this.param).then(resp => {
+        console.log(resp)
         if (resp.error) {
           this.$message({
             message: resp.error,
@@ -183,11 +185,15 @@ export default {
           })
         } else {
           this.$emit('close')
+          this.$emit('updateParent', this.remoteNode.remotePath)
         }
       })
     },
     close() {
       this.$emit('close')
+    },
+    updateParent() {
+      this.$emit('updateParent', this.remoteNode.remotePath)
     },
     reset() {
       this.$refs.form.clearValidate()

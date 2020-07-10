@@ -22,7 +22,7 @@
             </el-dropdown>
           </div>
           <el-tree
-            ref="deptTree"
+            ref="nodeTree"
             node-key="remotePath"
             :load="readNode"
             :check-strictly="true"
@@ -45,6 +45,7 @@
           :type="dialog.type"
           :remote-node="curNode"
           :invoke-attr="invokeAttr"
+          @updateParent="nodeUpdate"
           @close="editClose"
         />
         <node-properties
@@ -247,6 +248,18 @@ export default {
       // console.log(data.getSimpleMap())
       for (var element of ndata.children) {
         console.log(element[1].get('$invokable'))
+      }
+    },
+    nodeUpdate(path) {
+      console.log(path)
+      const index = path.lastIndexOf('/')
+      const nodepath = path.substring(0, index)
+
+      const tree = this.$refs.nodeTree
+      const cNode = tree.getNode(nodepath)
+      if (cNode) {
+        cNode.loaded = false
+        cNode.expand()// 主动调用展开节点方法，重新查询该节点下的所有子节点
       }
     },
     add() {
