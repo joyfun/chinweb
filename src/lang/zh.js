@@ -287,6 +287,12 @@ export default {
     'value': '值',
     'scaling': '倍率',
     'scaling offset': '倍率偏移量',
+    'device id': '设备ID',
+    address: '地址',
+    'client id': 'ClientID',
+    user: '用户',
+    password: '密码',
+    keepAlive: '超时时间',
     'writable': '是否可写'
 
   },
