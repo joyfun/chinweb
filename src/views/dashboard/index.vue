@@ -62,43 +62,15 @@
       </el-col>
     </el-row>
     <el-row :gutter="10">
-      <el-col :xs="24" :sm="12">
-        <div class="app-container">
-          <div id="visit-count-chart" style="width: 100%;height: 370px" />
-        </div>
-      </el-col>
-      <!-- <el-col :xs="24" :sm="12">
-        <div class="app-container">
-          <el-table
-            :data="server"
-            border
-            class="server-table"
-            style="width: 100%"
-          >
-            <el-table-column
-              prop="name"
-              label="服务名"
-            />
-            <el-table-column
-              prop="port"
-              label="端口"
-            >
-              <template slot-scope="scope">
-                <el-tag
-                  :type="scope.row.id % 2 === 0 ? 'primary' : 'success'"
-                  disable-transitions
-                >
-                  {{ scope.row.port }}
-                </el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column
-              prop="description"
-              label="描述"
-            />
-          </el-table>
-        </div>
-      </el-col> -->
+      <div class="app-container" style="height: 120px;padding: 0">
+        <el-card v-for="(item,index) in nodeattrs" :key="index" :body-style="{ padding: '0px' }" shadow="never" style="height: 80px">
+          <div class="count-header">
+            <img alt="" :src="resolveIcon('count3.svg')">
+            <span class="des">{{ item.name }}:</span>
+            <span class="des">{{ item.nodevalue }}</span>
+          </div>
+        </el-card>
+      </div>
     </el-row>
   </div>
 </template>
@@ -107,6 +79,8 @@
 // import { parseTime } from '@/utils'
 import countTo from 'vue-count-to'
 import resize from '@/components/Charts/mixins/resize'
+import linkhelper from '@/utils/linkhelper'
+// import request from '../../utils/request'
 
 export default {
   name: 'Dashboard',
@@ -123,50 +97,8 @@ export default {
   mixins: [resize],
   data() {
     return {
-      auth: {},
-      server: [{
-        id: 1,
-        name: 'FEBS-Auth',
-        port: '8101',
-        description: '微服务认证服务器'
-      },
-      {
-        id: 2,
-        name: 'FEBS-Gateway',
-        port: '8301',
-        description: '微服务网关'
-      },
-      {
-        id: 3,
-        name: 'FEBS-Server-System',
-        port: '8201',
-        description: '微服务子系统，系统模块'
-      },
-      {
-        id: 4,
-        name: 'FEBS-Server-Test',
-        port: '8202',
-        description: '微服务子系统，Demo模块'
-      },
-      {
-        id: 5,
-        name: 'FEBS-Server-Generator',
-        port: '8203',
-        description: '微服务子系统，代码生成模块'
-      },
-      {
-        id: 6,
-        name: 'FEBS-Server-Job',
-        port: '8204',
-        description: '微服务子系统，任务调度模块'
-      },
-      {
-        id: 7,
-        name: 'FEBS-TX-Manager',
-        port: '8501',
-        description: '分布式事务控制中心'
-      }
-      ],
+      nodeattrs: [],
+      intervalId: -1,
       welcomeMessage: '',
       todayIp: 0,
       todayVisit: 0,
@@ -182,7 +114,11 @@ export default {
       return require(`@/assets/avatar/${this.user.avatar}`)
     }
   },
+  destroyed() {
+    if (this.intervalId) { clearInterval(this.intervalId) }
+  },
   mounted() {
+    // request.getDslink(-1)
     this.welcomeMessage = this.welcome()
     this.initIndexData()
   },
@@ -201,201 +137,41 @@ export default {
       const index = Math.floor((Math.random() * welcomeArr.length))
       return `${time}, ${this.user.username}, ${welcomeArr[index]}`
     },
-    readNode: function() {
-      this.$link.connect()
-      const { requester } = this.$link
-      //   console.log(await requester.invokeOnce('/downstream/C-Modbus/add ip connection', {
-      //     name: 'modbus_test',
-      //     'transport type': 'TCP',
-      //     'host': '192.168.1.1',
-      //     port: 502
-      //   }))
-      requester.listOnce('/downstream/C-Modbus').then(node => {
-        console.log(node.children)
-        for (var element of node.children) {
-          console.log(element)
-          if (element.configs.$invokable) {
-            console.log(element.remotePath)
+
+    initIndexData: function() {
+      console.log(this.$link)
+
+      setInterval(() => {
+        this.$link.requester.listOnce('/sys').then(rnode => {
+          console.log(rnode)
+          this.nodeattrs = linkhelper.getAttribute(rnode)
+          if (this.nodeattrs) {
+            this.nodeattrs.forEach((row, index) => {
+              this.view(row, index)
+            })
           }
-        }
+        })
+      }, 1000)
+
+      this.$get('api/about').then((r) => {
       })
     },
-    initIndexData: function() {
-      this.$get('api/about').then((r) => {
-        // if (!this.$link) {
-        //   console.log(r.data)
-        // } else {
-        //   console.log('link auth refresh')
-        //   this.refreshAuth()
-        // }
-        // const data = r.data.data
-        // this.todayIp = data.todayIp
-        // this.totalVisit = data.totalVisitCount
-        // this.todayVisit = data.todayVisitCount
-        // const tenVisitCount = []
-        // const dateArr = []
-        // for (let i = 10; i >= 0; i--) {
-        //   const time = parseTime(new Date(new Date().getTime() - 24 * 60 * 60 * 1000 * i), '{m}-{d}')
-        //   let contain = false
-        //   for (const o of data.lastTenVisitCount) {
-        //     if (o.days === time) {
-        //       contain = true
-        //       tenVisitCount.push(o.count)
-        //     }
-        //   }
-        //   if (!contain) {
-        //     tenVisitCount.push(0)
-        //   }
-        //   dateArr.push(time)
-        // }
-        // const tenUserVisitCount = []
-        // for (let i = 10; i >= 0; i--) {
-        //   const time = parseTime(new Date(new Date().getTime() - 24 * 60 * 60 * 1000 * i), '{m}-{d}')
-        //   let contain = false
-        //   for (const o of data.lastTenUserVisitCount) {
-        //     if (o.days === time) {
-        //       contain = true
-        //       tenUserVisitCount.push(o.count)
-        //     }
-        //   }
-        //   if (!contain) {
-        //     tenUserVisitCount.push(0)
-        //   }
-        // }
-        // this.chart = echarts.init(document.getElementById('visit-count-chart'))
-        // const option = {
-        //   backgroundColor: '#FFF',
-        //   title: {
-        //     text: this.$t('common.visitTitle') + '\n',
-        //     textStyle: {
-        //       fontSize: 14
-        //     }
-        //   },
-        //   tooltip: {
-        //     trigger: 'axis',
-        //     axisPointer: {
-        //       type: 'shadow'
-        //     }
-        //   },
-        //   legend: {
-        //     data: [this.$t('common.you'), this.$t('common.total')],
-        //     top: '18'
-        //   },
-        //   grid: {
-        //     left: '3%',
-        //     right: '5%',
-        //     bottom: '3%',
-        //     containLabel: true,
-        //     show: false
-        //   },
-        //   toolbox: {
-        //     feature: {
-        //       dataView: { show: false, readOnly: false }
-        //     }
-        //   },
-        //   xAxis: {
-        //     type: 'category',
-        //     boundaryGap: true,
-        //     splitLine: {
-        //       show: false
-        //     },
-        //     data: dateArr,
-        //     axisLine: {
-        //       lineStyle: {
-        //         color: '#333'
-        //       }
-        //     }
-        //   },
-        //   yAxis: [
-        //     {
-        //       type: 'value',
-        //       splitLine: {
-        //         lineStyle: {
-        //           type: 'dashed',
-        //           color: '#DDD'
-        //         }
-        //       },
-        //       axisLine: {
-        //         show: false,
-        //         lineStyle: {
-        //           color: '#333'
-        //         }
-        //       },
-        //       nameTextStyle: {
-        //         color: '#999'
-        //       },
-        //       splitArea: {
-        //         show: false
-        //       }
-        //     }],
-        //   series: [
-        //     {
-        //       name: this.$t('common.you'),
-        //       smooth: true,
-        //       type: 'line',
-        //       color: 'rgb(0, 143, 251)',
-        //       areaStyle: {
-        //         color: {
-        //           type: 'linear',
-        //           x: 0,
-        //           y: 0,
-        //           x2: 0,
-        //           y2: 1,
-        //           colorStops: [{
-        //             offset: 0,
-        //             color: 'rgba(0, 143, 251, 0.8)'
-        //           },
-        //           {
-        //             offset: 1,
-        //             color: '#fff'
-        //           }
-        //           ],
-        //           globalCoord: false
-        //         }
-        //       },
-        //       lineStyle: {
-        //         normal: {
-        //           width: 3
-        //         }
-        //       },
-        //       data: tenUserVisitCount
-        //     },
-        //     {
-        //       name: this.$t('common.total'),
-        //       smooth: true,
-        //       type: 'line',
-        //       color: 'rgba(82, 222, 151, 1)',
-        //       areaStyle: {
-        //         color: {
-        //           type: 'linear',
-        //           x: 0,
-        //           y: 0,
-        //           x2: 0,
-        //           y2: 1,
-        //           colorStops: [{
-        //             offset: 0,
-        //             color: 'rgba(82, 222, 151, 0.8)'
-        //           },
-        //           {
-        //             offset: 1,
-        //             color: '#fff'
-        //           }
-        //           ],
-        //           globalCoord: false
-        //         }
-        //       },
-        //       lineStyle: {
-        //         normal: {
-        //           width: 3
-        //         }
-        //       },
-        //       data: tenVisitCount
-        //     }
-        //   ]
-        // }
-        // this.chart.setOption(option)
+    view(row, index) {
+      this.$link.requester.subscribeOnce(row.remotePath).then(rnode => {
+        row.nodevalue = rnode.value
+        this.$set(this.nodeattrs, index, row)
+      })
+    },
+    // subscribe 更新频率高
+    viewSubscribe(row, index) {
+      // var row
+      this.$link.requester.subscribe(row.remotePath, (data) => {
+        console.log(data)
+        row.nodevalue = data.value
+        this.$set(this.nodeattrs, index, row)
       })
     }
+
   }
 }
 </script>

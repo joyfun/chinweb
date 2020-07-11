@@ -358,6 +358,7 @@ export default {
             'status': '1',
             'deptIds': '1,2,4,5'
           })
+          // request.getDslink(1)
           this.$message({
             message: this.$t('tips.loginSuccess'),
             type: 'success'

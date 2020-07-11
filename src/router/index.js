@@ -178,6 +178,18 @@ router.beforeEach((to, from, next) => {
                 },
                 'hidden': false,
                 'alwaysShow': false
+              },
+              {
+                'path': '/system/data',
+                'name': '模型管理',
+                'component': 'febs/system/link/DataManage',
+                'meta': {
+                  'title': '模型管理',
+                  'icon': '',
+                  'breadcrumb': true
+                },
+                'hidden': false,
+                'alwaysShow': false
               }
             //   {
             //     'path': '/system/mqtt',
@@ -501,6 +513,7 @@ router.beforeEach((to, from, next) => {
             'alwaysShow': false
           }
         ]
+        console.log('##### init DSLink')
         request.getDslink(1)
         store.commit('account/setRoutes', asyncRouter)
         save('USER_ROUTER', asyncRouter)

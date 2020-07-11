@@ -14,7 +14,6 @@ import i18n from './lang' // internationalization
 import './icons' // icon
 import './utils/error-log' // error log
 import request from '@/utils/request'
-import linkhelper from '@/utils/linkhelper'
 
 import * as filters from './filters' // global filters
 import { hasPermission, hasNoPermission, hasAnyPermission } from './utils/permissionDirect'
@@ -41,7 +40,7 @@ Vue.prototype.$delete = request.delete
 Vue.prototype.$download = request.download
 Vue.prototype.$upload = request.upload
 Vue.prototype.$login = request.login
-Vue.prototype.$link = linkhelper.refreshAuth
+// Vue.prototype.$link = linkhelper.refreshAuth
 
 // register global utility filters
 Object.keys(filters).forEach(key => {

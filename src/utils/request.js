@@ -164,7 +164,7 @@ const request = {
     })
   },
   getDslink(flag) {
-    console.log('##### call getDsLink')
+    console.log('##### call getDsLink' + flag)
     if (flag || !Vue.prototype.$link) {
       this.get('jsconn').then(async(r) => {
         if (r.data) {
@@ -183,6 +183,8 @@ const request = {
           Vue.prototype.$link = link
         }
       })
+    } else {
+      console.log('#####link already connected')
     }
   },
   get(url, params) {

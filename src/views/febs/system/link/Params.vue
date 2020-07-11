@@ -144,6 +144,7 @@ export default {
   },
   methods: {
     getNodeParams(rnode) {
+      console.log(rnode)
       var param = {}
       if (rnode && rnode.remotePath) {
         var params = rnode.getConfig('$params')
@@ -151,7 +152,7 @@ export default {
           params.forEach((element, index) => {
             if (element.default !== undefined) {
               param[element.name] = element.default
-            } else {
+            } else if (this.invokeAttr[index].enums) {
               param[element.name] = this.invokeAttr[index].enums[0]
             }
           })

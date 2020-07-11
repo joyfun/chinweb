@@ -22,15 +22,14 @@
             </el-dropdown>
             <el-upload
               class="upload-demo"
-              style="display:none"
               accept="application/json"
               action="udefined"
               :before-upload="loadModel"
               auto-upload
             >
-              <el-button id="fileButton" ref="fileButton" size="small" type="primary">点击上传</el-button>
-            </el-upload>
-          </div>
+              <el-button size="small" type="primary">点击上传</el-button>
+              <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+            </el-upload></div>
           <el-tree
             ref="nodeTree"
             node-key="remotePath"
@@ -80,7 +79,7 @@ import linkhelper from '@/utils/linkhelper'
 // import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 export default {
-  name: 'LinkManager',
+  name: 'DataManager',
   components: { NodeParam, NodeProperties },
   filters: {
 
@@ -92,7 +91,6 @@ export default {
       nodeinvoke: [],
       nodeattrs: [],
       invokeAttr: [],
-      curInvoke: {},
       dialog: {
         isVisible: false,
         title: '',
@@ -142,12 +140,6 @@ export default {
       }
     },
     invokeAction(data, val) {
-      if (data.get('$invokable') === 'file') {
-        this.curInvoke = data
-        document.getElementById('fileButton').click()
-        // this.$refs.fileButton.handleClick()
-        return
-      }
       this.$link.requester.listOnce(data.remotePath).then(rnode => {
         console.log(rnode)
         this.curNode = rnode
@@ -174,8 +166,22 @@ export default {
       return false
     },
     filterNode(value, data) {
-      if (!value) return true
-      return data.label.indexOf(value) !== -1
+      // 根据是否有type 和 disconnectedTs来隐藏删除的node
+      if (!data.get('$type') && data.getConfig('$disconnectedTs')) {
+        console.log('hide node')
+        return false
+      }
+      //   if (data.getConfig('$disconnectedTs')) {
+      //     return false
+      //   }
+      return true
+
+    //   if (data != null && data.getConfig('$disconnectedTs')) {
+    //     console.log('node filter  ' + data.name)
+    //     return true
+    //   }
+    //   if (!value) return true
+    //   return data.label.indexOf(value) !== -1
     },
     loadRoot: async function() {
       this.deptTree = this.readNode('/downstream/ModbusLink')
@@ -193,7 +199,6 @@ export default {
             } else {
               this.$link.requester.listOnce(element[1].remotePath).then(rnode => {
                 rnode.invokes = linkhelper.getInvoke(rnode)
-                console.log('#################')
                 console.log(rnode)
               })
               tdata.push(element[1])
@@ -205,14 +210,12 @@ export default {
     },
     readNode: function(node, resolve) {
       const { requester } = this.$link
-      var path = '/downstream'
+      var path = '/data'
 
       if (node && node.data && node.data.remotePath) {
         path = node.data.remotePath
       }
       requester.listOnce(path).then((rnode) => {
-        console.log(path)
-        console.log(rnode)
         node.data = rnode
         rnode.invokes = linkhelper.getInvoke(rnode)
         if (!rnode.invokes) {
@@ -223,8 +226,8 @@ export default {
         Vue.set(this, 'nodeinvoke', rnode.invokes)
         Vue.set(this, 'nodeattrs', linkhelper.getAttribute(rnode))
 
-        console.log(rnode)
         resolve(this.nodeChildArray(rnode))
+        this.$refs.nodeTree.filter('$is')
       }
 
       )
@@ -237,7 +240,7 @@ export default {
           <span>
             <el-dropdown strigger='click' class='filter-item'>
               <el-button click='prepareInvoke(row)'>
-                { this.$t('table.more') },<i class='el-icon-arrow-down el-icon--right' />
+                { this.$t('table.more') },<i class='el-icon-arrow-down  el-icon--right' />
               </el-button>
               <el-dropdown-menu slot='dropdown'>
                 {data.invokes.forEach((o, idx) => {
@@ -271,13 +274,14 @@ export default {
     nodeUpdate(path) {
       console.log(path)
       const index = path.lastIndexOf('/')
-      const nodepath = path.substring(0, index)
-
+      var nodepath = path.substring(0, index)
       const tree = this.$refs.nodeTree
       const cNode = tree.getNode(nodepath)
       if (cNode) {
         cNode.loaded = false
         cNode.expand()// 主动调用展开节点方法，重新查询该节点下的所有子节点
+      } else if (nodepath.length > 1) {
+        this.nodeUpdate(nodepath)
       }
     },
     add() {
@@ -340,27 +344,13 @@ export default {
       var name = selectedFile.name// 读取选中文件的文件名
       var size = selectedFile.size// 读取选中文件的大小
       console.log('文件名:' + name + '大小:' + size + '类型' + selectedFile.type)
-      if (size > 1000 * 1000) {
-        return false
-      }
 
       var reader = new FileReader()// 这是核心,读取操作就是由它完成.
       reader.readAsText(selectedFile)// 读取文件的内容,也可以读取文件的URL
-      var that = this
       reader.onload = function() {
         // 当读取完成后回调这个函数,然后此时文件的内容存储到了result中,直接操作即可
-        that.$link.requester.invokeOnce(that.curInvoke.remotePath, { 'JSON': this.result }).then(resp => {
-          console.log(resp)
-          if (resp.error) {
-            that.$message({
-              message: resp.error,
-              type: 'warning'
-            })
-          } else {
-            that.nodeUpdate(that.curInvoke.remotePath)
-            that.$emit('close')
-          }
-        })
+        var model = JSON.parse(this.result)
+        console.log(model)
       }
       return false
     }

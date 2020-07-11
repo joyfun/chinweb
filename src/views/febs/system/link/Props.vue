@@ -153,8 +153,9 @@ export default {
       console.log(rnode)
       Vue.set(this, 'curNode', rnode)
       Vue.set(this, 'nodeinvoke', linkhelper.getInvoke(rnode))
-      console.log(this.nodeattrs)
       Vue.set(this, 'nodeattrs', linkhelper.getAttribute(rnode))
+      console.log(this.nodeattrs)
+
       this.nodeattrs.forEach((row, index) => {
         this.view(row, index)
       })
@@ -210,48 +211,6 @@ export default {
       this.$refs.table.clearFilter()
       this.search()
     },
-    singleDelete(row) {
-      this.$refs.table.toggleRowSelection(row, true)
-      this.batchDelete()
-    },
-    batchDelete() {
-      if (!this.selection.length) {
-        this.$message({
-          message: this.$t('tips.noDataSelected'),
-          type: 'warning'
-        })
-        return
-      }
-      let contain = false
-      this.$confirm(this.$t('tips.confirmDelete'), this.$t('common.tips'), {
-        confirmButtonText: this.$t('common.confirm'),
-        cancelButtonText: this.$t('common.cancel'),
-        type: 'warning'
-      }).then(() => {
-        const userIds = []
-        this.selection.forEach((u) => {
-          if (u.userId === this.currentUser.userId) {
-            contain = true
-            return
-          }
-          userIds.push(u.userId)
-        })
-        if (contain) {
-          this.$message({
-            message: this.$t('tips.containCurrentUser'),
-            type: 'warning'
-          })
-          this.clearSelections()
-        } else {
-          this.delete(userIds)
-        }
-      }).catch(() => {
-        this.clearSelections()
-      })
-    },
-    clearSelections() {
-      this.$refs.table.clearSelection()
-    },
     delete(userIds) {
       this.loading = true
       this.$delete(`system/user/${userIds}`).then(() => {
@@ -269,6 +228,8 @@ export default {
     view(row, index) {
       // console.log(JSON.stringify(row))
       this.readNode(row).then(rnode => {
+        console.log(rnode.remotePath)
+        console.log(rnode)
         row.nodevalue = rnode.value
         this.$set(this.nodeattrs, index, row)
       })

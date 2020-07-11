@@ -302,6 +302,16 @@ export default {
     'read': '读取',
     'add point': '添加数据点',
     'Add Connection': '添加连接',
+    'addServer': '添加服务',
+    'url': '地址',
+    'username': '用户名',
+    'cleanSession': '是否清空会话',
+    'clientId': 'clientId',
+    'qos': 'qos',
+    'rootCa': 'rootCa',
+    'cert': 'cert',
+    'privateKey': 'privateKey',
+    'gateway id': '网关ID',
     keepAlive: '超时时间',
     'writable': '是否可写'
 
