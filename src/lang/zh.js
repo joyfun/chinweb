@@ -318,9 +318,17 @@ export default {
     'Delete': '删除',
     'Update': '更新',
     'bits': '位数',
+    'linkRef': '链接数据点',
     'Import': '导入模型',
-
+    'linkmark': '链接模型',
     keepAlive: '超时时间',
+    model: '产品型号',
+    'manufacturerId': '厂商ID',
+    'manufacturerName': '厂商名',
+    'nodeId': '节点ID',
+    'deviceId': '设备ID',
+    'description': '描述',
+    'status': '状态',
     'writable': '是否可写'
 
   },

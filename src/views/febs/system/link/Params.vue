@@ -7,11 +7,27 @@
     :close-on-press-escape="false"
     :visible.sync="isVisible"
   >
-    <el-form ref="form" size="small" :model="param" :rules="rules" label-position="left" label-width="180px">
-      <el-form-item v-for="item in invokeAttr" :key="item.name" :label="$t('links[\''+item.name+'\']')" :prop="item.name">
+    <el-form
+      ref="form"
+      size="small"
+      :model="param"
+      :rules="rules"
+      label-position="left"
+      label-width="180px"
+    >
+      <el-form-item
+        v-for="item in invokeAttr"
+        :key="item.name"
+        :label="$t('links[\''+item.name+'\']')"
+        :prop="item.name"
+      >
         <div>
-
-          <el-select v-if="item.type=='enum'" v-model="param[item.name]" placeholder="" style="width:100%">
+          <el-select
+            v-if="item.type=='enum'"
+            v-model="param[item.name]"
+            placeholder
+            style="width:100%"
+          >
             <el-option
               v-for="(option,index) in item.enums"
               :key="index"
@@ -19,15 +35,22 @@
               :value="option"
             />
           </el-select>
-          <el-switch
-            v-else-if="item.type=='bool'"
-            v-model="param[item.name]"
+          <el-switch v-else-if="item.type=='bool'" v-model="param[item.name]" />
+          <el-input
+            v-else-if="item.type=='number'"
+            v-model.number="param[item.name]"
+            type="number"
           />
-          <el-input v-else-if="item.type=='number'" v-model.number="param[item.name]" type="number" />
+          <!-- 树形类型 -->
+          <template v-else-if="item.type=='ref'">
+            <el-input v-model="param[item.name]" :readonly="1>0">
+              <i slot="suffix" class="el-icon-search" @click="showTreeDialog(item.name)" />
+            </el-input>
+          </template>
+          <el-input v-else-if="item.name=='name' && nodename &&nodename.length>0" v-model="param[item.name]" readonly>不对呀</el-input>
 
           <el-input v-else v-model="param[item.name]" />
         </div>
-
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -44,14 +67,17 @@
         @click="submitForm"
       >{{ $t('common.confirm') }}</el-button>
     </div>
+    <tree-dialog :tree-dialog-visible="treeDialogVisible" :ref-name="refName" :title="treeTitle" :modal="false" @doSelect="updateRef" @close="treeClose" />
   </el-dialog>
 </template>
 <script>
 // validURL
 import { isIntegerGreaterThanZero } from '@/utils/my-validate'
+import TreeDialog from './tree-dialog'
 
 export default {
   name: 'NodeParam',
+  components: { TreeDialog },
   props: {
     dialogVisible: {
       type: Boolean,
@@ -87,10 +113,13 @@ export default {
   data() {
     return {
       screenWidth: 0,
+      refName: '',
       dept: {},
       param: {},
       buttonLoading: false,
       width: this.initWidth(),
+      treeDialogVisible: false,
+      treeTitle: '',
       rules: {
         port: [
           {
@@ -133,6 +162,7 @@ export default {
     isVisible(val) {
       if (val) {
         this.param = this.getNodeParams(this.remoteNode)
+        this.nodename = this.param.name
         // console.log(this.remoteNode)
       }
     }
@@ -146,6 +176,7 @@ export default {
   },
   methods: {
     getNodeParams(rnode) {
+      console.log(this.invokeAttr)
       var param = {}
       if (rnode && rnode.remotePath) {
         var params = rnode.getConfig('$params')
@@ -196,13 +227,36 @@ export default {
     close() {
       this.$emit('close')
     },
+    treeClose() {
+      console.log('tree close action')
+      this.treeDialogVisible = false
+    },
     updateParent() {
       this.$emit('updateParent', this.remoteNode.remotePath)
     },
     reset() {
       this.$refs.form.clearValidate()
       this.$refs.form.resetFields()
+    },
+    // 打开树形弹框
+    showTreeDialog(name) {
+      this.refName = name
+      this.treeDialogVisible = true
+      this.treeTitle = '树形选择'
+    },
+    updateRef(data) {
+      console.log(data)
+      console.log(this.param)
+      this.$set(this.param, data.name, data.node.remotePath)
+      this.treeDialogVisible = false
+      // this.param.l = data
     }
   }
 }
 </script>
+<style lang="scss" scoped>
+.el-icon-menu {
+  cursor: pointer;
+  color: #1890ff;
+}
+</style>

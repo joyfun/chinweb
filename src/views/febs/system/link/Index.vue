@@ -1,25 +1,10 @@
 <template>
   <div class="dept">
-    <el-row :gutter="10">
-      <el-col :xs="24" :sm="18">
+    <h2>设备选择</h2>
+    <el-row ref="dept" :gutter="10">
+      <el-col :xs="24" :sm="24">
         <div class="app-container">
           <div class="filter-container">
-            <!-- <el-input v-model="deptName" :placeholder="$t('table.dept.deptName')" class="filter-item search-item" />
-            <el-button class="filter-item" type="primary" plain @click="readNode">
-              {{ $t('table.search') }}
-            </el-button>
-            <el-button class="filter-item" type="warning" plain @click="reset">
-              {{ $t('table.reset') }}
-            </el-button>
-            -->
-            <el-dropdown v-has-any-permission="['dept:add','dept:delete','dept:export']" trigger="click" class="filter-item">
-              <el-button>
-                {{ $t('table.more') }}<i class="el-icon-arrow-down el-icon--right" />
-              </el-button>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item v-for="o in nodeinvoke" :key="o.remotePath" @click.native="invokeAction(o)">{{ $t('links[\''+o.name+'\']') }} </el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
             <el-upload
               class="upload-demo"
               style="display:none"
@@ -41,14 +26,55 @@
             lazy
             highlight-current
             :filter-node-method="filterNode"
-            @node-click="nodeClick"
-          ><span slot-scope="{ node, data }" class="custom-tree-node">
-            <span>{{ node.label }}</span>
-            <span style="position:absolute;right:0;">
-              <i class="el-icon-info table-operation" style="color: #87d068;" @click="showProps(data)" />
-              <i class="el-icon-chat-dot-round table-operation" @click="showCongfigs(data)" />
-
-            </span></span></el-tree>
+          >
+            <span slot-scope="{ node, data }" class="custom-tree-node">
+              <span>{{ node.label }}</span>
+              <span ref="invokes" class="invoks w1920" @click.stop="log">
+                <template v-for="(o, index) in data.invokes">
+                  <el-button
+                    v-if="index < count"
+                    :key="o.remotePath"
+                    type="primary"
+                    size="mini"
+                    :title="$t('links[\''+o.name+'\']')"
+                    @click.stop="invokeAction(o)"
+                  >{{ $t('links[\''+o.name+'\']') }}</el-button>
+                  <el-dropdown
+                    v-if="index === count"
+                    :key="o.remotePath"
+                    v-has-any-permission="['dept:add','dept:delete','dept:export']"
+                    class="filter-item"
+                    trigger="click"
+                    :hide-on-click="false"
+                  >
+                    <el-button type="primary">
+                      {{ $t('table.more') }}
+                      <i class="el-icon-arrow-down el-icon--right" />
+                    </el-button>
+                    <el-dropdown-menu slot="dropdown">
+                      <template v-for="(k, i) in data.invokes">
+                        <el-dropdown-item
+                          v-if="i >= count"
+                          :key="k.remotePath"
+                          @click.native="invokeAction(k)"
+                        >{{ $t('links[\''+k.name+'\']') }}</el-dropdown-item>
+                      </template>
+                    </el-dropdown-menu>
+                  </el-dropdown>
+                </template>
+                <i
+                  class="el-icon-refresh table-operation"
+                  style="color: #1890ff;font-size: 1.4rem;"
+                  @click.stop="showProps(data)"
+                />
+                <i
+                  style="color: #1890ff;font-size: 1.4rem;"
+                  class="el-icon-view table-operation"
+                  @click.stop="showCongfigs(data)"
+                />
+              </span>
+            </span>
+          </el-tree>
         </div>
         <node-param
           ref="edit"
@@ -69,13 +95,23 @@
           @close="editClose"
         />
         <el-dialog :visible.sync="configVisible">
-
-          <el-row v-for="(option,index) in curConfig" :key="index" style="margin: 5px 0">
-            {{ index }}:{{ option }}
-        &nbsp;
+          <el-row style="margin: 5px 0" class="tip" width:400>
+            <el-col :span="6">名称</el-col>
+            <el-col :span="18">值</el-col>&nbsp;
           </el-row>
-
+          <el-row
+            v-for="(option,index) in curConfig"
+            :key="index"
+            width:400
+            style="margin: 2px 0"
+            :class="{ tip: true, odd: true }"
+          >
+            <el-col :span="6">{{ index }}&nbsp;</el-col>
+            <el-col :span="18">{{ option }}&nbsp;</el-col>&nbsp;
+          </el-row>
         </el-dialog>
+        <tree-dialog :title="title" :tree-dialog-visible.sync="dialogVisible" />
+        <!-- :deviceType="deviceType" :newWhAirPanelVisible.sync="whAirPanelVisible" -->
       </el-col>
     </el-row>
   </div>
@@ -84,6 +120,7 @@
 import Vue from 'vue'
 import NodeParam from './Params'
 import NodeProperties from './Props'
+import TreeDialog from './tree-dialog'
 
 import linkhelper from '@/utils/linkhelper'
 
@@ -91,7 +128,7 @@ import linkhelper from '@/utils/linkhelper'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 export default {
   name: 'LinkManager',
-  components: { NodeParam, NodeProperties },
+  components: { NodeParam, NodeProperties, TreeDialog },
   filters: {
 
   },
@@ -119,7 +156,7 @@ export default {
       deptTree: [],
       treeProps: {
         children: 'subNode',
-        label: function(data, node) {
+        label(data, node) {
           return data.name
         }
       },
@@ -129,7 +166,12 @@ export default {
           { required: true, message: this.$t('rules.require'), trigger: 'blur' },
           { min: 3, max: 10, message: this.$t('rules.range3to10'), trigger: 'blur' }
         ]
-      }
+      },
+      count: 4,
+      objResize: null,
+      dialogVisible: false,
+      title: '',
+      index: 0
     }
   },
   computed: {
@@ -157,10 +199,12 @@ export default {
     //   return this.getInvoke(this.curNode)
     // }
   },
-  mounted() {
-    // request.getDslink()
-    // this.refreshAuth()
-  //  this.initDeptTree()
+  created() {
+    window.addEventListener('resize', this.getWidth)
+    this.getWidth()
+  },
+  destroyed() {
+    window.removeEventListener('resize', this.getWidth)
   },
   methods: {
     initDept() {
@@ -172,7 +216,10 @@ export default {
       }
     },
     invokeAction(data, val) {
-      console.log('invokeAction start !!!')
+      // 树形弹框的参数 dialogVisible title
+      // this.dialogVisible = true
+      // this.title = "树形选择"
+
       if (data.get('$invokable') === 'file') {
         this.curInvoke = data
         document.getElementById('fileButton').click()
@@ -208,10 +255,67 @@ export default {
       if (!value) return true
       return data.label.indexOf(value) !== -1
     },
-    loadRoot: async function() {
+    loadRoot() {
       this.deptTree = this.readNode('/downstream/ModbusLink')
     },
-    nodeChildArray: function(rnode) {
+    // 获取子级
+    nodeChildArr(rnode) {
+      return new Promise((resolve) => {
+        var tdata = []
+        let flag = true
+        if (rnode.children.size > 0) {
+          const arr = Array.from(rnode.children)
+          this.index = arr.length
+          for (let index = 0; index < arr.length; index++) {
+            const element = arr[index]
+            console.log(element[1])
+            if (element[1].get('$is') === 'node' || element[1].get('$is') === 'static' || element[1].get('$is') === 'dsa/link') {
+              if (element[1].get('$invokable') || element[1].get('$hidden')) {
+                // tdata.push(element[1])
+                this.index--
+                if (flag) {
+                  const timer = setTimeout(() => {
+                    if (this.index === 0) {
+                      console.log(tdata)
+                      resolve(tdata)
+                    }
+                    clearTimeout(timer)
+                  }, 100)
+                }
+              } else {
+                flag = false
+                this.$link.requester.listOnce(element[1].remotePath).then(item => {
+                  element[1].invokes = linkhelper.getInvoke(item)
+                  tdata.push(element[1])
+                  this.index--
+                  const timer = setTimeout(() => {
+                    if (this.index === 0) {
+                      console.log(tdata)
+                      resolve(tdata)
+                    }
+                    clearTimeout(timer)
+                  }, 100)
+                })
+              }
+            } else {
+              this.index--
+              if (flag) {
+                const timer = setTimeout(() => {
+                  if (this.index === 0) {
+                    console.log(tdata)
+                    resolve(tdata)
+                  }
+                  clearTimeout(timer)
+                }, 100)
+              }
+            }
+          }
+        } else {
+          resolve(tdata)
+        }
+      })
+    },
+    nodeChildArray(rnode) {
       var tdata = []
       if (rnode.children) {
         for (var element of rnode.children) {
@@ -234,7 +338,7 @@ export default {
       }
       return tdata
     },
-    readNode: function(node, resolve) {
+    readNode(node, resolve) {
       const { requester } = this.$link
       var path = '/downstream'
 
@@ -242,20 +346,26 @@ export default {
         path = node.data.remotePath
       }
       requester.listOnce(path).then((rnode) => {
-        console.log(path)
-        console.log(rnode)
+        // console.log(path)
+        console.log(node)
         node.data = rnode
         rnode.invokes = linkhelper.getInvoke(rnode)
+
+        // if (path === '/downstream') {
         if (!rnode.invokes) {
           rnode.invokes = []
         }
+        // }
         Vue.set(this, 'curNode', rnode)
         // nodeinvoke = this.getInvoke(ndata)
         Vue.set(this, 'nodeinvoke', rnode.invokes)
         Vue.set(this, 'nodeattrs', linkhelper.getAttribute(rnode))
+        this.nodeChildArr(rnode).then((res) => {
+          console.log(res)
+          resolve(res)
+        })
 
-        console.log(rnode)
-        resolve(this.nodeChildArray(rnode))
+        // resolve(this.nodeChildArray(rnode))
       }
 
       )
@@ -268,7 +378,7 @@ export default {
           <span>
             <el-dropdown strigger='click' class='filter-item'>
               <el-button click='prepareInvoke(row)'>
-                { this.$t('table.more') },<i class='el-icon-arrow-down el-icon--right' />
+                {this.$t('table.more')},<i class='el-icon-arrow-down el-icon--right' />
               </el-button>
               <el-dropdown-menu slot='dropdown'>
                 {data.invokes.forEach((o, idx) => {
@@ -361,9 +471,9 @@ export default {
       })
     },
     resetForm() {
-    //   this.$refs.form.clearValidate()
-    //   this.$refs.form.resetFields()
-    //   this.dept = this.initDept()
+      //   this.$refs.form.clearValidate()
+      //   this.$refs.form.resetFields()
+      //   this.dept = this.initDept()
     },
     showCongfigs(rnode) {
       this.configVisible = true
@@ -381,7 +491,7 @@ export default {
       var reader = new FileReader()// 这是核心,读取操作就是由它完成.
       reader.readAsText(selectedFile)// 读取文件的内容,也可以读取文件的URL
       var that = this
-      reader.onload = function() {
+      reader.onload = () => {
         // 当读取完成后回调这个函数,然后此时文件的内容存储到了result中,直接操作即可
         that.$link.requester.invokeOnce(that.curInvoke.remotePath, { 'JSON': this.result }).then(resp => {
           console.log(resp)
@@ -397,31 +507,101 @@ export default {
         })
       }
       return false
+    },
+    getWidth() {
+      if (this.$refs.invokes) {
+        this.count = Math.floor((this.$refs.invokes.clientWidth - 200) / 125) - 1
+      } else {
+        this.count = Math.floor((this.$refs.dept.clientWidth * 0.75) / 125) - 1
+      }
+    },
+    log() {
+
     }
   }
 }
 </script>
 <style lang="scss" scoped>
-  .dept {
-    margin: 10px;
-    .app-container {
-      margin: 0 0 10px 0 !important;
+.dept {
+  margin: 10px;
+  .app-container {
+    margin: 0 0 10px 0 !important;
+  }
+  h2 {
+    padding: 20px;
+    background-color: #fff;
+    margin-left: -5px;
+    margin-right: -5px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  }
+}
+.el-card.is-always-shadow {
+  box-shadow: none;
+}
+.el-card {
+  border-radius: 0;
+  border: none;
+  .el-card__header {
+    padding: 10px 20px !important;
+    border-bottom: 1px solid #f1f1f1 !important;
+  }
+}
+/deep/ .custom-tree-node {
+  display: flex;
+  font-size: 14px;
+  padding-right: 8px;
+  width: 100%;
+  .invoks {
+    flex-grow: 1;
+    text-align: right;
+  }
+}
+/deep/ .el-tree-node__content {
+  height: 40px;
+  line-height: 40px;
+}
+.dept {
+    .el-row {
+    background-color: #fff;
+    /deep/ .el-button {
+        width: 125px;
+        margin-right: 10px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 12px;
     }
-  }
-  .el-card.is-always-shadow {
-    box-shadow: none;
-  }
-  .el-card {
-    border-radius: 0;
-    border: none;
-    .el-card__header {
-      padding: 10px 20px !important;
-      border-bottom: 1px solid #f1f1f1 !important;
+    /deep/ .el-dropdown-link {
+        width: 175px;
+        margin-right: 10px;
     }
-  }
+    .tip {
+        background-color: oldlace;
+        line-height: 24px;
+        .el-col {
+        border-right: 2px solid #fff;
+        padding-left: 10px;
+        }
+    }
+    .odd {
+        background-color: #f0f9eb;
+        .el-col {
+        border-right: 2px solid #fff;
+        padding-left: 5px;
+        }
+    }
+    }
+}
 </style>
 <style lang="scss">
-  .vue-treeselect__menu {
-    max-height: 165px !important;
-  }
+.vue-treeselect__menu {
+  max-height: 165px !important;
+}
+.el-dropdown-link {
+  cursor: pointer;
+  color: #edf4fa;
+}
+.el-icon-arrow-down {
+  font-size: 12px;
+}
 </style>

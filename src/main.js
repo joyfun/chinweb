@@ -18,6 +18,9 @@ import request from '@/utils/request'
 import * as filters from './filters' // global filters
 import { hasPermission, hasNoPermission, hasAnyPermission } from './utils/permissionDirect'
 
+import moment from 'moment'
+Vue.prototype.$moment = moment
+
 const Plugins = [
   hasPermission,
   hasNoPermission,
