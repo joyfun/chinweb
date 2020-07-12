@@ -70,8 +70,8 @@
         />
         <el-dialog :visible.sync="configVisible">
 
-          <el-row v-for="(option,index) in curConfig" :key="option" style="margin: 5px 0">
-            {{ option }}:{{ index }}
+          <el-row v-for="(option,index) in curConfig" :key="index" style="margin: 5px 0">
+            {{ index }}:{{ option }}
         &nbsp;
           </el-row>
 
@@ -137,10 +137,19 @@ export default {
       var conf = {}
       if (this.curNode && this.curNode.remotePath) {
         this.curNode.forEachConfig((key, val) => {
+          if (val instanceof Object || key.indexOf('$') < 0) {
+            return
+          }
+          conf[key] = val
+        })
+        this.curNode.forEachAttribute((key, val) => {
+          if (val instanceof Object || key.indexOf('@') < 0) {
+            return
+          }
           conf[key] = val
         })
       }
-
+      console.log(conf)
       return conf
     }
     // nodeinvoke: function() {
@@ -163,6 +172,7 @@ export default {
       }
     },
     invokeAction(data, val) {
+      console.log('invokeAction start !!!')
       if (data.get('$invokable') === 'file') {
         this.curInvoke = data
         document.getElementById('fileButton').click()

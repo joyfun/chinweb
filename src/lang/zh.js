@@ -317,6 +317,7 @@ export default {
     'Add data point': '添加数据点',
     'Delete': '删除',
     'Update': '更新',
+    'bits': '位数',
     'Import': '导入模型',
 
     keepAlive: '超时时间',

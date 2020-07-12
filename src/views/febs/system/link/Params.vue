@@ -23,6 +23,8 @@
             v-else-if="item.type=='bool'"
             v-model="param[item.name]"
           />
+          <el-input v-else-if="item.type=='number'" v-model.number="param[item.name]" type="number" />
+
           <el-input v-else v-model="param[item.name]" />
         </div>
 
@@ -144,16 +146,18 @@ export default {
   },
   methods: {
     getNodeParams(rnode) {
-      console.log(rnode)
       var param = {}
       if (rnode && rnode.remotePath) {
         var params = rnode.getConfig('$params')
+        console.log(params)
         if (params) {
           params.forEach((element, index) => {
             if (element.default !== undefined) {
               param[element.name] = element.default
             } else if (this.invokeAttr[index].enums) {
               param[element.name] = this.invokeAttr[index].enums[0]
+            } else if (element.type === 'bool') {
+              param[element.name] = false
             }
           })
         }
@@ -175,7 +179,6 @@ export default {
     },
     submitForm() {
       const { requester } = this.$link
-      console.log(this.remoteNode)
       console.log(this.param)
       requester.invokeOnce(this.remoteNode.remotePath, this.param).then(resp => {
         console.log(resp)
