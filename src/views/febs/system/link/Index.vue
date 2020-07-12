@@ -428,6 +428,7 @@ export default {
       this.dialog.type = 'add'
     },
     showProps(rnode) {
+      this.curNode = rnode
       Vue.set(this.propsDialog, 'isVisible', true)
       this.propsDialog.title = this.$t('common.action')
       this.propsDialog.type = 'view'

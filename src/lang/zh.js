@@ -333,11 +333,14 @@ export default {
     'device_query': '查询设备',
     'device_add': '添加设备',
     'device_update': '更新设备状态',
-
-    'device_import': '导入设备',
+    'point_add': '添加数据点',
+    'device_delet': '删除设备',
+    'device_updat': '设备状态更新',
+    'device_import': '导入模型',
+    'point_link': '链接数据点',
+    'point_delete:': '删除数据点',
 
     'device_delete': '删除设备',
-    'point_add': '添加数据点',
 
     'writable': '是否可写'
 
