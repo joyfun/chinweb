@@ -329,6 +329,16 @@ export default {
     'deviceId': '设备ID',
     'description': '描述',
     'status': '状态',
+    'connection_add': '添加连接',
+    'device_query': '查询设备',
+    'device_add': '添加设备',
+    'device_update': '更新设备状态',
+
+    'device_import': '导入设备',
+
+    'device_delete': '删除设备',
+    'point_add': '添加数据点',
+
     'writable': '是否可写'
 
   },
