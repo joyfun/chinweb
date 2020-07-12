@@ -46,6 +46,8 @@
             <span>{{ node.label }}</span>
             <span style="position:absolute;right:0;">
               <i class="el-icon-info table-operation" style="color: #87d068;" @click="showProps(data)" />
+              <i class="el-icon-chat-dot-round table-operation" @click="showCongfigs(data)" />
+
             </span></span></el-tree>
         </div>
         <node-param
@@ -66,6 +68,14 @@
           :path="curNode.remotePath"
           @close="editClose"
         />
+        <el-dialog :visible.sync="configVisible">
+
+          <el-row v-for="(option,index) in curConfig" :key="option" style="margin: 5px 0">
+            {{ option }}:{{ index }}
+        &nbsp;
+          </el-row>
+
+        </el-dialog>
       </el-col>
     </el-row>
   </div>
@@ -89,6 +99,7 @@ export default {
     return {
       auth: {},
       curNode: {},
+      configVisible: false,
       nodeinvoke: [],
       nodeattrs: [],
       invokeAttr: [],
@@ -122,6 +133,16 @@ export default {
     }
   },
   computed: {
+    curConfig: function() {
+      var conf = {}
+      if (this.curNode && this.curNode.remotePath) {
+        this.curNode.forEachConfig((key, val) => {
+          conf[key] = val
+        })
+      }
+
+      return conf
+    }
     // nodeinvoke: function() {
     //   console.log('##### computed')
     //   return this.getInvoke(this.curNode)
@@ -333,6 +354,9 @@ export default {
     //   this.$refs.form.clearValidate()
     //   this.$refs.form.resetFields()
     //   this.dept = this.initDept()
+    },
+    showCongfigs(rnode) {
+      this.configVisible = true
     },
     loadModel(selectedFile) {
       // 获取读取我文件的File对象

@@ -312,6 +312,13 @@ export default {
     'cert': 'cert',
     'privateKey': 'privateKey',
     'gateway id': '网关ID',
+    'Add device': '添加子设备',
+    'Query device': '查询设备',
+    'Add data point': '添加数据点',
+    'Delete': '删除',
+    'Update': '更新',
+    'Import': '导入模型',
+
     keepAlive: '超时时间',
     'writable': '是否可写'
 
