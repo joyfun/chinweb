@@ -28,11 +28,11 @@
             :filter-node-method="filterNode"
           >
             <span slot-scope="{ node, data }" class="custom-tree-node">
-              <span>{{ node.label }}</span>
+              <span @click="nodeClick(data)">{{ node.label }}</span>
               <span ref="invokes" class="invoks w1920" @click.stop="log">
-                <template v-for="(o, index) in data.invokes">
+                <template v-for="(o, index) in data.invokes"><!--4个按钮不出折叠-->
                   <el-button
-                    v-if="index < count"
+                    v-if="index <count||data.invokes.length==(count+1)"
                     :key="o.remotePath"
                     type="primary"
                     size="mini"
@@ -40,7 +40,7 @@
                     @click.stop="invokeAction(o)"
                   >{{ $t('links[\''+o.name+'\']') }}</el-button>
                   <el-dropdown
-                    v-if="index === count"
+                    v-if="index === count &&data.invokes.length>(count+1)"
                     :key="o.remotePath"
                     v-has-any-permission="['dept:add','dept:delete','dept:export']"
                     class="filter-item"
@@ -276,7 +276,7 @@ export default {
                 if (flag) {
                   const timer = setTimeout(() => {
                     if (this.index === 0) {
-                      console.log(tdata)
+                      //          console.log(tdata)
                       resolve(tdata)
                     }
                     clearTimeout(timer)

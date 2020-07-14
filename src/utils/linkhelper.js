@@ -49,10 +49,10 @@ const linkhelper = {
     if (node) {
       if (node.children) {
         for (var element of node.children) {
-          if (!element[1].getConfig('$type')) {
+          if (!(element[1].getConfig('$type') || element[1].getConfig('$datatype'))) {
             continue
           }
-          if (element[1].getConfig('$type') === 'dynamic' || element[1].getConfig('$type') === 'string' || element[1].getConfig('$type') === 'number' || element[1].getConfig('$type').startsWith('bool')) {
+          if (element[1].getConfig('$datatype') || element[1].getConfig('$type') === 'dynamic' || element[1].getConfig('$type') === 'string' || element[1].getConfig('$type') === 'number' || element[1].getConfig('$type').startsWith('bool')) {
             attrs.push(element[1])
           }
         }
