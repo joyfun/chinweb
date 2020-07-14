@@ -339,7 +339,7 @@ export default {
     'device_import': '导入模型',
     'point_link': '链接数据点',
     'point_delete:': '删除数据点',
-
+    'float order': '浮点字节序',
     'device_delete': '删除设备',
 
     'writable': '是否可写'
