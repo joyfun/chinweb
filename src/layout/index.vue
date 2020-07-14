@@ -8,7 +8,7 @@
         <tags-view v-if="needTagsView" />
       </div>
       <app-main />
-      <div class="footer">© 2020 <a target="_blank" href="https://mrbird.cc">GenLink</a> - AR502H</div>
+      <div class="footer">© 2020 <a target="_blank" href="https://chinwell.cn">Chinwell</a> - AR502H</div>
       <right-panel v-if="showSettings">
         <settings />
       </right-panel>
