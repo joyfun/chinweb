@@ -237,20 +237,20 @@ export default {
         if (rnode.getConfig('$params')) {
           this.invokeAttr = linkhelper.getInvokeAttr(rnode)
           this.add()
+        } else {
+          this.$link.requester.invokeOnce(rnode.remotePath, {}).then(resp => {
+            console.log(resp)
+            if (resp.error) {
+              this.$message({
+                message: resp.error,
+                type: 'warning'
+              })
+            } else {
+              this.nodeUpdate(data.remotePath)
+              this.$emit('close')
+            }
+          })
         }
-        // else {
-        //   this.$link.requester.invokeOnce(rnode.remotePath, {}).then(resp => {
-        //     if (resp.error) {
-        //       this.$message({
-        //         message: resp.error,
-        //         type: 'warning'
-        //       })
-        //     } else {
-        //       this.nodeUpdate(data.remotePath)
-        //       this.$emit('close')
-        //     }
-        //   })
-        // }
       })
     },
     showNode(node) {
@@ -334,8 +334,6 @@ export default {
             } else {
               this.$link.requester.listOnce(element[1].remotePath).then(rnode => {
                 rnode.invokes = linkhelper.getInvoke(rnode)
-                console.log('#################')
-                console.log(rnode)
               })
               tdata.push(element[1])
             }
@@ -416,12 +414,16 @@ export default {
       }
     },
     nodeUpdate(path) {
-      console.log(path)
+      // console.log(path)
       const index = path.lastIndexOf('/')
       const nodepath = path.substring(0, index)
 
       const tree = this.$refs.nodeTree
-      const cNode = tree.getNode(nodepath)
+      var cNode = tree.getNode(nodepath)
+
+      if ('emove'.indexOf(path) || 'elete'.indexOf(path)) { // remove delete 刷新上级的上级
+        cNode = cNode.parent
+      }
       if (cNode) {
         cNode.loaded = false
         cNode.expand()// 主动调用展开节点方法，重新查询该节点下的所有子节点
