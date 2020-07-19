@@ -219,7 +219,7 @@ export default {
       // 树形弹框的参数 dialogVisible title
       // this.dialogVisible = true
       // this.title = "树形选择"
-
+      console.log(data)
       if (data.get('$invokable') === 'file') {
         this.curInvoke = data
         document.getElementById('fileButton').click()
@@ -227,24 +227,30 @@ export default {
         return
       }
       this.$link.requester.listOnce(data.remotePath).then(rnode => {
+        if (rnode instanceof Array) {
+          console.log('Get Array Index 0 default.')
+          rnode = rnode[0]
+        }
+        console.log('Get invoke instance.')
         console.log(rnode)
         this.curNode = rnode
         if (rnode.getConfig('$params')) {
           this.invokeAttr = linkhelper.getInvokeAttr(rnode)
           this.add()
-        } else {
-          this.$link.requester.invokeOnce(rnode.remotePath, {}).then(resp => {
-            if (resp.error) {
-              this.$message({
-                message: resp.error,
-                type: 'warning'
-              })
-            } else {
-              this.nodeUpdate(data.remotePath)
-              this.$emit('close')
-            }
-          })
         }
+        // else {
+        //   this.$link.requester.invokeOnce(rnode.remotePath, {}).then(resp => {
+        //     if (resp.error) {
+        //       this.$message({
+        //         message: resp.error,
+        //         type: 'warning'
+        //       })
+        //     } else {
+        //       this.nodeUpdate(data.remotePath)
+        //       this.$emit('close')
+        //     }
+        //   })
+        // }
       })
     },
     showNode(node) {
@@ -512,7 +518,7 @@ export default {
     getWidth() {
       if (this.$refs.invokes) {
         this.count = Math.floor((this.$refs.invokes.clientWidth - 200) / 125) - 1
-      } else {
+      } else if (this.$refs.dept) {
         this.count = Math.floor((this.$refs.dept.clientWidth * 0.75) / 125) - 1
       }
     },
