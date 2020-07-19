@@ -163,8 +163,7 @@ const request = {
       }
     })
   },
-  getDslink(flag) {
-    console.log('##### call getDsLink' + flag)
+  getDslink(flag, callback) {
     if (flag || !Vue.prototype.$link) {
       this.get('jsconn').then(async(r) => {
         if (r.data) {
@@ -181,6 +180,10 @@ const request = {
           })
           link.connect()
           Vue.prototype.$link = link
+          if (callback) {
+            console.log('connect callback')
+            callback()
+          }
         }
       })
     } else {

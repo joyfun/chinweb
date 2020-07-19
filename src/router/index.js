@@ -514,10 +514,12 @@ router.beforeEach((to, from, next) => {
           }
         ]
         console.log('##### init DSLink')
-        request.getDslink(1)
-        store.commit('account/setRoutes', asyncRouter)
-        save('USER_ROUTER', asyncRouter)
-        go(to, next)
+        request.getDslink(1, () => {
+          store.commit('account/setRoutes', asyncRouter)
+          save('USER_ROUTER', asyncRouter)
+          go(to, next)
+        })
+
       // })
         //   } else {
         //     asyncRouter = userRouter
