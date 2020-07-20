@@ -341,7 +341,7 @@ export default {
     'point_delete:': '删除数据点',
     'float order': '浮点字节序',
     'device_delete': '删除设备',
-
+    'connection_delete': '删除连接',
     'writable': '是否可写'
 
   },
